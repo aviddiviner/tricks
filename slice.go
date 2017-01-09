@@ -18,6 +18,14 @@ func (ts TrickSlice) Value() interface{} {
 	return reflect.Value(ts).Interface()
 }
 
+// Copy returns a new slice containing the same values.
+func (ts TrickSlice) Copy() TrickSlice {
+	in := reflect.Value(ts)
+	out := reflect.MakeSlice(in.Type(), in.Len(), in.Len()) // TODO: v.Cap()?
+	reflect.Copy(out, in)
+	return TrickSlice(out)
+}
+
 // First reslices to only include the first n elements.
 // If n > len(slice), it returns the same slice unchanged.
 func (ts TrickSlice) First(n int) TrickSlice {
