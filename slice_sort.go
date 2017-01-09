@@ -43,6 +43,25 @@ func (p sortableStrings) Less(i, j int) bool {
 	return v.Index(i).String() < v.Index(j).String()
 }
 
+type sortableIface reflect.Value
+
+func (p sortableIface) Len() int {
+	f := reflect.Value(p).MethodByName("Len")
+	return f.Call(nil)[0].Interface().(int)
+}
+
+func (p sortableIface) Swap(i, j int) {
+	f := reflect.Value(p).MethodByName("Swap")
+	args := []reflect.Value{reflect.ValueOf(i), reflect.ValueOf(j)}
+	f.Call(args)
+}
+
+func (p sortableIface) Less(i, j int) bool {
+	f := reflect.Value(p).MethodByName("Less")
+	args := []reflect.Value{reflect.ValueOf(i), reflect.ValueOf(j)}
+	return f.Call(args)[0].Interface().(bool)
+}
+
 // Sort the contents of the slice in place. Slices of type string, int, or float
 // are handled automatically, otherwise, the underlying slice must implement
 // sort.Interface or this method panics.
@@ -52,20 +71,19 @@ func (ts TrickSlice) Sort() TrickSlice {
 
 	switch t.Kind() {
 	case reflect.String:
-		s := sortableStrings(v)
-		sort.Sort(s)
-		return TrickSlice(s)
+		sort.Sort(sortableStrings(v))
+		return ts
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		s := sortableInts(v)
-		sort.Sort(s)
-		return TrickSlice(s)
+		sort.Sort(sortableInts(v))
+		return ts
 	case reflect.Float32, reflect.Float64:
-		s := sortableFloats(v)
-		sort.Sort(s)
-		return TrickSlice(s)
+		sort.Sort(sortableFloats(v))
+		return ts
 	default:
-		// if !keyType.Implements(reflect.TypeOf((*sort.Interface)(nil))) { // .Elem()?
-		panic("slice not sortable")
-		// }
+		if !v.Type().Implements(reflect.TypeOf((*sort.Interface)(nil)).Elem()) {
+			panic("slice doesn't implement sort.Interface")
+		}
+		sort.Sort(sortableIface(v))
+		return ts
 	}
 }
