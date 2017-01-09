@@ -45,6 +45,24 @@ func TestSortStringsInPlace(t *testing.T) {
 	assert.Equal(t, []string{"bear", "bull", "cat", "cow", "dog", "iguana", "pig"}, animals)
 }
 
+func TestSortIntsInPlace(t *testing.T) {
+	var numbers = []int{3, 5, 21, 1, 34, 55, 13, 2, 8, 89, 1}
+
+	sorted := Slice(numbers).Sort().Value().([]int)
+
+	assert.Equal(t, []int{1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89}, sorted)
+	assert.Equal(t, []int{1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89}, numbers)
+}
+
+func TestSortFloatsInPlace(t *testing.T) {
+	var numbers = []float64{3.5, 21.1, 34.55, 13.2, 8.89, 1}
+
+	sorted := Slice(numbers).Sort().Value().([]float64)
+
+	assert.Equal(t, []float64{1, 3.5, 8.89, 13.2, 21.1, 34.55}, sorted)
+	assert.Equal(t, []float64{1, 3.5, 8.89, 13.2, 21.1, 34.55}, numbers)
+}
+
 func TestGroupBy(t *testing.T) {
 	var animals = []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
 
