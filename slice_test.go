@@ -20,11 +20,20 @@ func TestSliceValid(t *testing.T) {
 func TestSlicePanics(t *testing.T) {
 	assert.Panics(t, func() { Slice(1, 2, 3, 4, "5") })
 	assert.Panics(t, func() { Slice(1, 2, 3, 4, nil) })
+	assert.Panics(t, func() { Slice(Slice(1, 2, 3), 4, 5) })
 }
 
 func TestSliceSingle(t *testing.T) {
 	assert.Equal(t, []int{1}, Slice(1).Value().([]int))
 	assert.Equal(t, []string{"abc"}, Slice("abc").Value().([]string))
+}
+
+func TestSliceTrickSlice(t *testing.T) {
+	first := Slice(1, 2, 3)
+	second := Slice(first)
+	assert.Equal(t, []int{1, 2, 3}, first.Value().([]int))
+	assert.Equal(t, []int{1, 2, 3}, second.Value().([]int))
+	assert.Equal(t, first, second)
 }
 
 func TestFirstReslicesOriginal(t *testing.T) {

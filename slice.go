@@ -6,10 +6,17 @@ import (
 
 type TrickSlice reflect.Value
 
+var trickSliceType = reflect.TypeOf((*TrickSlice)(nil)).Elem()
+
 func Slice(sliceOrElement interface{}, moreElements ...interface{}) TrickSlice {
 	v := reflect.ValueOf(sliceOrElement)
-	if v.Kind() == reflect.Slice && len(moreElements) == 0 {
-		return TrickSlice(v)
+	if len(moreElements) == 0 {
+		if v.Kind() == reflect.Slice { // TrickSlice is a Kind of reflect.Struct
+			return TrickSlice(v)
+		}
+		if v.Type() == trickSliceType {
+			return sliceOrElement.(TrickSlice)
+		}
 	}
 	typ := reflect.SliceOf(v.Type())
 	slice := reflect.MakeSlice(typ, len(moreElements)+1, len(moreElements)+1)
