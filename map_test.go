@@ -31,7 +31,7 @@ func TestMapOnly(t *testing.T) {
 		"F": "Frog",
 	}
 
-	subset := Map(alphabet).Only("A", "C", "F").Value().(map[string]string)
+	subset := Map(alphabet).Only(Slice("A", "C", "F")).Value().(map[string]string)
 	var expected = map[string]string{
 		"A": "Apple",
 		"C": "Cat",
@@ -39,9 +39,16 @@ func TestMapOnly(t *testing.T) {
 	}
 	assert.Equal(t, expected, subset)
 
+	keys := []string{"A", "C", "F"}
+	again := Map(alphabet).Only(keys).Value().(map[string]string)
+	assert.Equal(t, expected, again)
+
+	single := Map(alphabet).Only("A").Value().(map[string]string)
+	assert.Equal(t, map[string]string{"A": "Apple"}, single)
+
 	missing := Map(alphabet).Only("G").Value().(map[string]string)
 	assert.Equal(t, map[string]string{}, missing)
 
-	empty := Map(alphabet).Only().Value().(map[string]string)
+	empty := Map(alphabet).Only(nil).Value().(map[string]string)
 	assert.Equal(t, map[string]string{}, empty)
 }

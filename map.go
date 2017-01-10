@@ -32,16 +32,18 @@ func (tm TrickMap) Keys() TrickSlice {
 	return TrickSlice(out)
 }
 
-// Only returns a map containing only those keys given by the variadic argument.
-func (tm TrickMap) Only(keys ...interface{}) TrickMap {
+// Only returns a map containing only those keys in the given slice. Also
+// accepts a single key, or nil (return empty map). [2]
+func (tm TrickMap) Only(keys interface{}) TrickMap {
 	v := reflect.Value(tm)
+	k := reflect.Value(Slice(keys))
 
 	keyType := v.Type().Key()
 	mapType := reflect.MapOf(keyType, v.Type().Elem())
 
 	out := reflect.MakeMap(mapType)
-	for i := 0; i < len(keys); i++ {
-		key := reflect.ValueOf(keys[i])
+	for i := 0; i < k.Len(); i++ {
+		key := k.Index(i)
 		if !key.Type().AssignableTo(keyType) {
 			panic("map.Only: key doesn't match map's key type")
 		}
