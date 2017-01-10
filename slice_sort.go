@@ -6,6 +6,9 @@ import (
 	"sort"
 )
 
+// Multiple types of sortable reflect.Values so that we can have independant
+// Less() implementations, rather than one big switch statement inside Less().
+
 type sortableInts reflect.Value
 type sortableFloats reflect.Value
 type sortableStrings reflect.Value

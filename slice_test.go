@@ -33,7 +33,7 @@ func TestLastReslicesOriginal(t *testing.T) {
 	assert.Equal(t, 10, cap(numbers))
 }
 
-func TestCopyPreservesOriginal(t *testing.T) {
+func TestSliceCopyPreservesOriginal(t *testing.T) {
 	var numbers = []int{4, 3, 2, 1}
 
 	sorted := Slice(numbers).Copy().Sort().Value().([]int)
@@ -118,7 +118,7 @@ func TestGroupBy(t *testing.T) {
 	assert.Equal(t, expected, grouped)
 }
 
-func TestMap(t *testing.T) {
+func TestSliceMap(t *testing.T) {
 	var animals = []string{"dog", "cat", "bear", "cow"}
 
 	result := Slice(animals).Map(strings.ToUpper).Value().([]string)
