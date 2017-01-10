@@ -7,23 +7,29 @@ import (
 )
 
 func TestFirstReslicesOriginal(t *testing.T) {
-	var numbers = []int{1, 2, 3, 4, 5}
+	var numbers = make([]int, 10)[:5]
+	copy(numbers, []int{1, 2, 3, 4, 5})
 
 	first3 := Slice(numbers).First(3).Value().([]int)
 	first3[0] = 7
 
 	assert.Equal(t, []int{7, 2, 3}, first3)
+	assert.Equal(t, 3, cap(first3))
 	assert.Equal(t, []int{7, 2, 3, 4, 5}, numbers)
+	assert.Equal(t, 10, cap(numbers))
 }
 
 func TestLastReslicesOriginal(t *testing.T) {
-	var numbers = []int{1, 2, 3, 4, 5}
+	var numbers = make([]int, 10)[:5]
+	copy(numbers, []int{1, 2, 3, 4, 5})
 
 	last3 := Slice(numbers).Last(3).Value().([]int)
 	last3[0] = 7
 
 	assert.Equal(t, []int{7, 4, 5}, last3)
+	assert.Equal(t, 3, cap(last3))
 	assert.Equal(t, []int{1, 2, 7, 4, 5}, numbers)
+	assert.Equal(t, 10, cap(numbers))
 }
 
 func TestCopyPreservesOriginal(t *testing.T) {
@@ -31,8 +37,8 @@ func TestCopyPreservesOriginal(t *testing.T) {
 
 	sorted := Slice(numbers).Copy().Sort().Value().([]int)
 
-	assert.Equal(t, []int{1, 2, 3, 4}, sorted)
 	assert.Equal(t, []int{4, 3, 2, 1}, numbers)
+	assert.Equal(t, []int{1, 2, 3, 4}, sorted)
 }
 
 func TestSortStringsInPlace(t *testing.T) {
@@ -92,6 +98,7 @@ func TestSortInterfaceInPlace(t *testing.T) {
 		struct{ string }{"iguana"},
 	}
 	assert.Equal(t, expected, sorted)
+	assert.Equal(t, sorted, animals)
 }
 
 func TestGroupBy(t *testing.T) {

@@ -26,26 +26,26 @@ func (ts TrickSlice) Copy() TrickSlice {
 	return TrickSlice(out)
 }
 
-// First reslices to only include the first n elements.
-// If n > len(slice), it returns the same slice unchanged.
+// First reslices to only include the first n elements. If n > len(slice), it
+// reslices to include all elements. In both cases, cap() of the new slice is
+// set to equal its length.
 func (ts TrickSlice) First(n int) TrickSlice {
 	v := reflect.Value(ts)
 	if n > v.Len() {
-		return TrickSlice(v)
-	} else {
-		return TrickSlice(v.Slice(0, n))
+		n = v.Len()
 	}
+	return TrickSlice(v.Slice3(0, n, n))
 }
 
-// Last reslices to only include the last n elements.
-// If n > len(slice), it returns the same slice unchanged.
+// Last reslices to only include the last n elements. If n > len(slice), it
+// reslices to include all elements. In both cases, cap() of the new slice is
+// set to equal its length.
 func (ts TrickSlice) Last(n int) TrickSlice {
 	v := reflect.Value(ts)
 	if n > v.Len() {
-		return TrickSlice(v)
-	} else {
-		return TrickSlice(v.Slice(v.Len()-n, v.Len()))
+		n = v.Len()
 	}
+	return TrickSlice(v.Slice3(v.Len()-n, v.Len(), v.Len()))
 }
 
 func isValidMapFunc(funcType, sliceType reflect.Type) bool {
