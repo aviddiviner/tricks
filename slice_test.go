@@ -17,6 +17,15 @@ func TestSliceValid(t *testing.T) {
 	assert.Equal(t, 5, cap(variadic))
 }
 
+func TestSliceNil(t *testing.T) {
+	// These type assertions should all work.
+	t.Log(Slice([]interface{}{}).Value().([]interface{}))
+	t.Log(Slice([]interface{}{nil}).Value().([]interface{}))
+	t.Log(Slice([]interface{}{nil, nil, nil}).Value().([]interface{}))
+	t.Log(Slice(nil).Value().([]interface{}))
+	t.Log(Slice(nil, nil, nil).Value().([]interface{}))
+}
+
 func TestSlicePanics(t *testing.T) {
 	assert.Panics(t, func() { Slice(1, 2, 3, 4, "5") })
 	assert.Panics(t, func() { Slice(1, 2, 3, 4, nil) })

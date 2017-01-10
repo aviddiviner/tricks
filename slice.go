@@ -10,6 +10,10 @@ var trickSliceType = reflect.TypeOf((*TrickSlice)(nil)).Elem()
 
 func Slice(sliceOrElement interface{}, moreElements ...interface{}) TrickSlice {
 	v := reflect.ValueOf(sliceOrElement)
+	if !v.IsValid() { // nil
+		v = reflect.ValueOf([]interface{}{})
+		return TrickSlice(v)
+	}
 	if len(moreElements) == 0 {
 		if v.Kind() == reflect.Slice { // TrickSlice is a Kind of reflect.Struct
 			return TrickSlice(v)
