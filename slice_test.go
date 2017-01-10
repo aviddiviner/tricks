@@ -1,6 +1,7 @@
 package tricks
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,6 +39,7 @@ func TestCopyPreservesOriginal(t *testing.T) {
 	sorted := Slice(numbers).Copy().Sort().Value().([]int)
 
 	assert.Equal(t, []int{4, 3, 2, 1}, numbers)
+	assert.NotEqual(t, numbers, sorted)
 	assert.Equal(t, []int{1, 2, 3, 4}, sorted)
 }
 
@@ -114,4 +116,14 @@ func TestGroupBy(t *testing.T) {
 		6: []string{"iguana"},
 	}
 	assert.Equal(t, expected, grouped)
+}
+
+func TestMap(t *testing.T) {
+	var animals = []string{"dog", "cat", "bear", "cow"}
+
+	result := Slice(animals).Map(strings.ToUpper).Value().([]string)
+
+	expected := []string{"DOG", "CAT", "BEAR", "COW"}
+	assert.Equal(t, expected, result)
+	assert.NotEqual(t, animals, result)
 }

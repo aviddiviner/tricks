@@ -2,6 +2,7 @@ package tricks_test
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aviddiviner/tricks"
 )
@@ -9,19 +10,24 @@ import (
 var animals = []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
 
 func ExampleSlice() {
-	bearCow := tricks.Slice(animals).Last(5).First(2).Value().([]string)
+	bearCow := tricks.Slice(animals).
+		Map(strings.ToUpper).
+		Last(5).
+		First(2).
+		Value().([]string)
 
-	fmt.Println(bearCow, animals)
+	fmt.Println(bearCow)
 
-	// Output: [bear cow] [dog cat bear cow bull pig iguana]
+	// Output: [BEAR COW]
 }
 
 func ExampleSlice_groupby() {
-	animalsByLength := tricks.Slice(animals).
+	byLength := tricks.Slice(animals).
+		Copy().Sort().
 		GroupBy(func(s string) int { return len(s) }).
 		Value().(map[int][]string)
 
-	fmt.Println(animalsByLength[3])
+	fmt.Println(byLength[3])
 
-	// Output: [dog cat cow pig]
+	// Output: [cat cow dog pig]
 }

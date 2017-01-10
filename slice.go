@@ -60,7 +60,7 @@ func (ts TrickSlice) GroupBy(fn interface{}) TrickMap {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
 	if !isValidMapFunc(f.Type(), v.Type().Elem()) {
-		panic("invalid grouping function")
+		panic("invalid group-by function")
 	}
 	keyType := f.Type().Out(0)
 	valType := reflect.SliceOf(v.Type().Elem())
@@ -78,4 +78,25 @@ func (ts TrickSlice) GroupBy(fn interface{}) TrickMap {
 	}
 
 	return TrickMap(out)
+}
+
+// Map applies the given function to each element of the slice and stores the
+// result to a new slice. The cap() of the new slice is set to equal its length.
+func (ts TrickSlice) Map(fn interface{}) TrickSlice {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !isValidMapFunc(f.Type(), v.Type().Elem()) {
+		panic("invalid map function")
+	}
+	outType := f.Type().Out(0)
+	typ := reflect.SliceOf(outType)
+
+	out := reflect.MakeSlice(typ, v.Len(), v.Len())
+	for i := 0; i < v.Len(); i++ {
+		val := v.Index(i)
+		result := f.Call([]reflect.Value{val})[0]
+		out.Index(i).Set(result)
+	}
+
+	return TrickSlice(out)
 }
