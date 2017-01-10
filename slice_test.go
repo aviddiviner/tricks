@@ -127,3 +127,26 @@ func TestMap(t *testing.T) {
 	assert.Equal(t, expected, result)
 	assert.NotEqual(t, animals, result)
 }
+
+func TestMaxAndMin(t *testing.T) {
+	var numbers = []int{3, 5, 21, 1, 34, 55, 13, 2, 8, 89, 1}
+	var number = []int{42}
+
+	max := Slice(numbers).Max().(int)
+	assert.Equal(t, 89, max)
+
+	max = Slice(number).Max().(int)
+	assert.Equal(t, 42, max)
+
+	_, ok := Slice([]int{}).Max().(int)
+	assert.False(t, ok)
+
+	min := Slice(numbers).Min().(int)
+	assert.Equal(t, 1, min)
+
+	min = Slice(number).Min().(int)
+	assert.Equal(t, 42, min)
+
+	_, ok = Slice([]int{}).Min().(int)
+	assert.False(t, ok)
+}
