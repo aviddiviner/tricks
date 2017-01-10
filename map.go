@@ -31,3 +31,22 @@ func (tm TrickMap) Keys() TrickSlice {
 
 	return TrickSlice(out)
 }
+
+// Only returns a map containing only those keys given by the variadic argument.
+func (tm TrickMap) Only(keys ...interface{}) TrickMap {
+	v := reflect.Value(tm)
+
+	keyType := v.Type().Key()
+	mapType := reflect.MapOf(keyType, v.Type().Elem())
+
+	out := reflect.MakeMap(mapType)
+	for i := 0; i < len(keys); i++ {
+		key := reflect.ValueOf(keys[i])
+		if !key.Type().AssignableTo(keyType) {
+			panic("key isn't assignable to map's key type")
+		}
+		out.SetMapIndex(key, v.MapIndex(key))
+	}
+
+	return TrickMap(out)
+}
