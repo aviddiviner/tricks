@@ -6,12 +6,21 @@ import (
 
 type TrickSlice reflect.Value
 
-func Slice(anySlice interface{}) TrickSlice {
-	v := reflect.ValueOf(anySlice)
-	if v.Kind() != reflect.Slice {
-		panic("input is not a slice")
+func Slice(sliceOrElement interface{}, moreElements ...interface{}) TrickSlice {
+	v := reflect.ValueOf(sliceOrElement)
+	if v.Kind() == reflect.Slice && len(moreElements) == 0 {
+		return TrickSlice(v)
 	}
-	return TrickSlice(v)
+	typ := reflect.SliceOf(v.Type())
+	slice := reflect.MakeSlice(typ, len(moreElements)+1, len(moreElements)+1)
+	slice.Index(0).Set(v)
+	for i := 0; i < len(moreElements); i++ {
+		el := reflect.ValueOf(moreElements[i])
+		// TODO: panic: reflect.Set: value of type string is not assignable to type int
+		// TODO: panic: reflect: call of reflect.Value.Set on zero Value
+		slice.Index(i + 1).Set(el)
+	}
+	return TrickSlice(slice)
 }
 
 func (ts TrickSlice) Value() interface{} {
@@ -60,7 +69,7 @@ func (ts TrickSlice) GroupBy(fn interface{}) TrickMap {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
 	if !isValidMapFunc(f.Type(), v.Type().Elem()) {
-		panic("invalid group-by function")
+		panic("slice.GroupBy: invalid grouping function")
 	}
 	keyType := f.Type().Out(0)
 	valType := reflect.SliceOf(v.Type().Elem())
@@ -86,7 +95,7 @@ func (ts TrickSlice) Map(fn interface{}) TrickSlice {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
 	if !isValidMapFunc(f.Type(), v.Type().Elem()) {
-		panic("invalid map function")
+		panic("slice.Map: invalid mapping function")
 	}
 	outType := f.Type().Out(0)
 	typ := reflect.SliceOf(outType)

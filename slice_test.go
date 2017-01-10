@@ -7,6 +7,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestSliceValid(t *testing.T) {
+	normal := Slice([]int{1, 2, 3, 4, 5}).Value().([]int)
+	variadic := Slice(1, 2, 3, 4, 5).Value().([]int)
+
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, normal)
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, variadic)
+	assert.Equal(t, 5, cap(normal))
+	assert.Equal(t, 5, cap(variadic))
+}
+
+func TestSlicePanics(t *testing.T) {
+	assert.Panics(t, func() { Slice(1, 2, 3, 4, "5") })
+	assert.Panics(t, func() { Slice(1, 2, 3, 4, nil) })
+}
+
+func TestSliceSingle(t *testing.T) {
+	assert.Equal(t, []int{1}, Slice(1).Value().([]int))
+	assert.Equal(t, []string{"abc"}, Slice("abc").Value().([]string))
+}
+
 func TestFirstReslicesOriginal(t *testing.T) {
 	var numbers = make([]int, 10)[:5]
 	copy(numbers, []int{1, 2, 3, 4, 5})

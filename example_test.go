@@ -31,3 +31,5 @@ func ExampleSlice_groupby() {
 
 	// Output: [cat cow dog pig]
 }
+
+// TODO: Add variadic example.
