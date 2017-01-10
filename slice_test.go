@@ -19,11 +19,11 @@ func TestSliceValid(t *testing.T) {
 
 func TestSliceNil(t *testing.T) {
 	// These type assertions should all work.
-	t.Log(Slice([]interface{}{}).Value().([]interface{}))
-	t.Log(Slice([]interface{}{nil}).Value().([]interface{}))
-	t.Log(Slice([]interface{}{nil, nil, nil}).Value().([]interface{}))
-	t.Log(Slice(nil).Value().([]interface{}))
-	t.Log(Slice(nil, nil, nil).Value().([]interface{}))
+	assert.Equal(t, 0, len(Slice([]interface{}{}).Value().([]interface{})))
+	assert.Equal(t, 1, len(Slice([]interface{}{nil}).Value().([]interface{})))
+	assert.Equal(t, 3, len(Slice([]interface{}{nil, nil, nil}).Value().([]interface{})))
+	assert.Equal(t, 0, len(Slice(nil).Value().([]interface{})))
+	assert.Equal(t, 0, len(Slice(nil, nil, nil).Value().([]interface{})))
 }
 
 func TestSlicePanics(t *testing.T) {
