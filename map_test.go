@@ -52,11 +52,12 @@ func TestMapNil(t *testing.T) {
 	assert.Equal(t, 0, len(Map(map[interface{}]interface{}{}).Value().(map[interface{}]interface{})))
 	assert.Equal(t, 1, len(Map(map[interface{}]interface{}{nil: nil}).Value().(map[interface{}]interface{})))
 	assert.Equal(t, 2, len(Map(map[interface{}]interface{}{nil: nil, "abc": 123}).Value().(map[interface{}]interface{})))
+	assert.Equal(t, 0, len(Map(nil).Value().(map[interface{}]interface{})))
 }
 
 func TestMapPanics(t *testing.T) {
-	assert.Panics(t, func() { Map(nil) }) // TODO:
-	// assert.Equal(t, 0, len(Map(nil).Value().(map[interface{}]interface{})))
+	t.Log("TODO")
+	// assert.Panics(t, func() { Map(...) }) // TODO
 }
 
 func TestMapOnly(t *testing.T) {

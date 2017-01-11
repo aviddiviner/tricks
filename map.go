@@ -8,6 +8,9 @@ type TrickMap reflect.Value
 
 func Map(anyMap interface{}) TrickMap {
 	v := reflect.ValueOf(anyMap)
+	if !v.IsValid() { // nil
+		v = reflect.ValueOf(map[interface{}]interface{}{})
+	}
 	if v.Kind() != reflect.Map {
 		panic("tricks: Map: input is not a map")
 	}
