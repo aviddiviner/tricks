@@ -21,7 +21,7 @@ func ExampleSlice() {
 	// Output: [BEAR COW]
 }
 
-func ExampleSlice_groupby() {
+func ExampleSlice_groupBy() {
 	byLength := tricks.Slice(animals).
 		Copy().Sort().
 		GroupBy(func(s string) int { return len(s) }).

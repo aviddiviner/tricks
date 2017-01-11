@@ -67,29 +67,32 @@ func (p sortableIface) Less(i, j int) bool {
 
 var sortInterfaceType = reflect.TypeOf((*sort.Interface)(nil)).Elem()
 
+func getSortable(context string, v reflect.Value) sort.Interface {
+	switch v.Type().Elem().Kind() {
+	case reflect.String:
+		return sortableStrings(v)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return sortableInts(v)
+	case reflect.Float32, reflect.Float64:
+		return sortableFloats(v)
+	default:
+		if !v.Type().Implements(sortInterfaceType) {
+			panic("tricks: " + context + ": slice doesn't implement sort.Interface")
+		}
+		return sortableIface(v)
+	}
+}
+
 // Sort the contents of the slice in place. Slices of type string, int, or float
 // are handled automatically, otherwise, the underlying slice must implement
 // sort.Interface or this method panics.
 func (ts TrickSlice) Sort() TrickSlice {
 	v := reflect.Value(ts)
-	t := v.Type().Elem()
-
-	switch t.Kind() {
-	case reflect.String:
-		sort.Sort(sortableStrings(v))
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		sort.Sort(sortableInts(v))
-	case reflect.Float32, reflect.Float64:
-		sort.Sort(sortableFloats(v))
-	default:
-		if !v.Type().Implements(sortInterfaceType) {
-			panic("tricks: slice.Sort: slice doesn't implement sort.Interface")
-		}
-		sort.Sort(sortableIface(v))
-	}
+	sort.Sort(getSortable("slice.Sort", v))
 	return ts
 }
 
+// Find the maximum value in O(n) time.
 func findIndexMax(s sort.Interface) (max int) {
 	if s.Len() == 1 {
 		return
@@ -102,16 +105,8 @@ func findIndexMax(s sort.Interface) (max int) {
 	return
 }
 
-func findIndexMin(s sort.Interface) (min int) {
-	if s.Len() == 1 {
-		return
-	}
-	for i := 1; i < s.Len(); i++ {
-		if s.Less(i, min) {
-			min = i
-		}
-	}
-	return
+func findIndexMin(s sort.Interface) int {
+	return findIndexMax(sort.Reverse(s))
 }
 
 // Max returns the element of the slice with the maximum value. Slices of type
@@ -120,27 +115,10 @@ func findIndexMin(s sort.Interface) (min int) {
 // If the slice is empty, this method returns the nil interface{}.
 func (ts TrickSlice) Max() interface{} {
 	v := reflect.Value(ts)
-	t := v.Type().Elem()
-
 	if v.Len() == 0 {
 		return nil
 	}
-
-	var max int
-	switch t.Kind() {
-	case reflect.String:
-		max = findIndexMax(sortableStrings(v))
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		max = findIndexMax(sortableInts(v))
-	case reflect.Float32, reflect.Float64:
-		max = findIndexMax(sortableFloats(v))
-	default:
-		if !v.Type().Implements(sortInterfaceType) {
-			panic("tricks: slice.Max: slice doesn't implement sort.Interface")
-		}
-		max = findIndexMax(sortableIface(v))
-	}
-	return v.Index(max).Interface()
+	return v.Index(findIndexMax(getSortable("slice.Max", v))).Interface()
 }
 
 // Min returns the element of the slice with the minimum value. Slices of type
@@ -149,25 +127,8 @@ func (ts TrickSlice) Max() interface{} {
 // If the slice is empty, this method returns the nil interface{}.
 func (ts TrickSlice) Min() interface{} {
 	v := reflect.Value(ts)
-	t := v.Type().Elem()
-
 	if v.Len() == 0 {
 		return nil
 	}
-
-	var min int
-	switch t.Kind() {
-	case reflect.String:
-		min = findIndexMin(sortableStrings(v))
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		min = findIndexMin(sortableInts(v))
-	case reflect.Float32, reflect.Float64:
-		min = findIndexMin(sortableFloats(v))
-	default:
-		if !v.Type().Implements(sortInterfaceType) {
-			panic("tricks: slice.Min: slice doesn't implement sort.Interface")
-		}
-		min = findIndexMin(sortableIface(v))
-	}
-	return v.Index(min).Interface()
+	return v.Index(findIndexMin(getSortable("slice.Min", v))).Interface()
 }
