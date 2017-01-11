@@ -83,7 +83,7 @@ func (ts TrickSlice) Sort() TrickSlice {
 		sort.Sort(sortableFloats(v))
 	default:
 		if !v.Type().Implements(sortInterfaceType) {
-			panic("slice doesn't implement sort.Interface")
+			panic("tricks: slice.Sort: slice doesn't implement sort.Interface")
 		}
 		sort.Sort(sortableIface(v))
 	}
@@ -136,7 +136,7 @@ func (ts TrickSlice) Max() interface{} {
 		max = findIndexMax(sortableFloats(v))
 	default:
 		if !v.Type().Implements(sortInterfaceType) {
-			panic("slice doesn't implement sort.Interface")
+			panic("tricks: slice.Max: slice doesn't implement sort.Interface")
 		}
 		max = findIndexMax(sortableIface(v))
 	}
@@ -165,7 +165,7 @@ func (ts TrickSlice) Min() interface{} {
 		min = findIndexMin(sortableFloats(v))
 	default:
 		if !v.Type().Implements(sortInterfaceType) {
-			panic("slice doesn't implement sort.Interface")
+			panic("tricks: slice.Min: slice doesn't implement sort.Interface")
 		}
 		min = findIndexMin(sortableIface(v))
 	}

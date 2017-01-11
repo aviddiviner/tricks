@@ -9,7 +9,7 @@ type TrickMap reflect.Value
 func Map(anyMap interface{}) TrickMap {
 	v := reflect.ValueOf(anyMap)
 	if v.Kind() != reflect.Map {
-		panic("Map: input is not a map")
+		panic("tricks: Map: input is not a map")
 	}
 	return TrickMap(v)
 }
@@ -45,7 +45,7 @@ func (tm TrickMap) Only(keys interface{}) TrickMap {
 	for i := 0; i < k.Len(); i++ {
 		key := k.Index(i)
 		if !key.Type().AssignableTo(keyType) {
-			panic("map.Only: key doesn't match map's key type")
+			panic("tricks: map.Only: key doesn't match map's key type")
 		}
 		out.SetMapIndex(key, v.MapIndex(key))
 	}
