@@ -21,6 +21,44 @@ func TestMapKeys(t *testing.T) {
 	assert.Equal(t, []string{"A", "B", "C", "D", "E", "F"}, letters)
 }
 
+func TestMapCopy(t *testing.T) {
+	var alphabet = map[string]string{
+		"A": "Apple",
+		"B": "Ball",
+		"C": "Cat",
+	}
+	orig := Map(alphabet)
+	abc := Map(alphabet).Copy()
+	delete(alphabet, "A")
+
+	assert.Equal(t, []string{"B", "C"}, orig.Keys().Sort().Value().([]string))
+	assert.Equal(t, []string{"A", "B", "C"}, abc.Keys().Sort().Value().([]string))
+
+	underlying := abc.Value().(map[string]string)
+	delete(underlying, "C")
+
+	assert.Equal(t, []string{"B", "C"}, orig.Keys().Sort().Value().([]string))
+	assert.Equal(t, []string{"A", "B"}, abc.Keys().Sort().Value().([]string))
+}
+
+func TestMapLen(t *testing.T) {
+	assert.Equal(t, 3, Map(map[int]interface{}{1: nil, 3: nil, 5: nil}).Len())
+	assert.Equal(t, 1, Map(map[interface{}]int{nil: 1}).Len())
+	assert.Equal(t, 0, Map(map[int]bool{}).Len())
+}
+
+func TestMapNil(t *testing.T) {
+	// These type assertions should all work.
+	assert.Equal(t, 0, len(Map(map[interface{}]interface{}{}).Value().(map[interface{}]interface{})))
+	assert.Equal(t, 1, len(Map(map[interface{}]interface{}{nil: nil}).Value().(map[interface{}]interface{})))
+	assert.Equal(t, 2, len(Map(map[interface{}]interface{}{nil: nil, "abc": 123}).Value().(map[interface{}]interface{})))
+}
+
+func TestMapPanics(t *testing.T) {
+	assert.Panics(t, func() { Map(nil) }) // TODO:
+	// assert.Equal(t, 0, len(Map(nil).Value().(map[interface{}]interface{})))
+}
+
 func TestMapOnly(t *testing.T) {
 	var alphabet = map[string]string{
 		"A": "Apple",

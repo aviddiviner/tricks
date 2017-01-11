@@ -54,6 +54,11 @@ func (ts TrickSlice) Copy() TrickSlice {
 	return TrickSlice(out)
 }
 
+// Len returns the length of the slice.
+func (ts TrickSlice) Len() int {
+	return reflect.Value(ts).Len()
+}
+
 // First reslices to only include the first n elements. If n > len(slice), it
 // reslices to include all elements. In both cases, cap() of the new slice is
 // set to equal its length.

@@ -18,6 +18,23 @@ func (tm TrickMap) Value() interface{} {
 	return reflect.Value(tm).Interface()
 }
 
+// Copy returns a new map containing the same values.
+func (tm TrickMap) Copy() TrickMap {
+	in := reflect.Value(tm)
+	out := reflect.MakeMap(in.Type())
+	keys := in.MapKeys()
+	for i := 0; i < len(keys); i++ {
+		key := keys[i]
+		out.SetMapIndex(key, in.MapIndex(key))
+	}
+	return TrickMap(out)
+}
+
+// Len returns the length of the map (number of keys).
+func (tm TrickMap) Len() int {
+	return reflect.Value(tm).Len()
+}
+
 // Keys returns a slice of the map's keys.
 func (tm TrickMap) Keys() TrickSlice {
 	v := reflect.Value(tm)

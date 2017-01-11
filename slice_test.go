@@ -81,6 +81,13 @@ func TestSliceCopyPreservesOriginal(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3, 4}, sorted)
 }
 
+func TestSliceLen(t *testing.T) {
+	assert.Equal(t, 4, Slice([]int{4, 3, 2, 1}).Len())
+	assert.Equal(t, 4, Slice(4, 3, 2, 1).Len())
+	assert.Equal(t, 1, Slice([]interface{}{nil}).Len())
+	assert.Equal(t, 0, Slice(nil).Len())
+}
+
 func TestSortStringsInPlace(t *testing.T) {
 	var animals = []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
 
