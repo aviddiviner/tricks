@@ -74,20 +74,34 @@ func (p sortableIface) Less(i, j int) bool {
 	return f.Call(args)[0].Interface().(bool)
 }
 
-var sortInterfaceType = reflect.TypeOf((*sort.Interface)(nil)).Elem()
+// We declare these types because we want to check that the slice is of this
+// exact type, and not just having elements of the same reflect.Kind. In this
+// way, we won't sort elements that look like ints, unless that slice type is
+// either exactly []int or it explicitly implements sort.Interface.
+var (
+	typeIntSlice      = reflect.SliceOf(reflect.TypeOf((*int)(nil)).Elem())     // []int
+	typeInt8Slice     = reflect.SliceOf(reflect.TypeOf((*int8)(nil)).Elem())    // []int8
+	typeInt16Slice    = reflect.SliceOf(reflect.TypeOf((*int16)(nil)).Elem())   // []int16
+	typeInt32Slice    = reflect.SliceOf(reflect.TypeOf((*int32)(nil)).Elem())   // []int32
+	typeInt64Slice    = reflect.SliceOf(reflect.TypeOf((*int64)(nil)).Elem())   // []int64
+	typeStringSlice   = reflect.SliceOf(reflect.TypeOf((*string)(nil)).Elem())  // []string
+	typeFloat32Slice  = reflect.SliceOf(reflect.TypeOf((*float32)(nil)).Elem()) // []float32
+	typeFloat64Slice  = reflect.SliceOf(reflect.TypeOf((*float64)(nil)).Elem()) // []float64
+	typeSortInterface = reflect.TypeOf((*sort.Interface)(nil)).Elem()           // sort.Interface
+)
 
 func getSortable(context string, v reflect.Value) sort.Interface {
-	if v.Type().Implements(sortInterfaceType) {
-		return sortableIface(v)
-	}
-	switch v.Type().Elem().Kind() {
-	case reflect.String:
+	switch v.Type() {
+	case typeStringSlice:
 		return sortableStrings(v)
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case typeIntSlice, typeInt8Slice, typeInt16Slice, typeInt32Slice, typeInt64Slice:
 		return sortableInts(v)
-	case reflect.Float32, reflect.Float64:
+	case typeFloat32Slice, typeFloat64Slice:
 		return sortableFloats(v)
 	default:
+		if v.Type().Implements(typeSortInterface) {
+			return sortableIface(v)
+		}
 		panic("tricks: " + context + ": slice doesn't implement sort.Interface")
 	}
 }

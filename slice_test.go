@@ -98,11 +98,11 @@ func TestSortStringsInPlace(t *testing.T) {
 }
 
 func TestSortIntsInPlace(t *testing.T) {
-	var numbers = []int{3, 5, 21, 1, 34, 55, 13, 2, 8, 89, 1}
+	var numbers = []int8{3, 5, 21, 1, 34, 55, 13, 2, 8, 89, 1}
 
-	sorted := Slice(numbers).Sort().Value().([]int)
+	sorted := Slice(numbers).Sort().Value().([]int8)
 
-	assert.Equal(t, []int{1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89}, sorted)
+	assert.Equal(t, []int8{1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89}, sorted)
 	assert.Equal(t, sorted, numbers)
 }
 
@@ -130,15 +130,12 @@ func TestSortInterfaceInPlace(t *testing.T) {
 	assert.Equal(t, sorted, animals)
 	expected := testSortByLen{"dog", "cat", "cow", "pig", "bear", "bull", "iguana"}
 	assert.Equal(t, expected, animals)
+}
 
+func TestSortUnsortableTypes(t *testing.T) {
 	assert.Panics(t, func() { Slice(testUnsortable{}).Sort() })
-	// assert.Panics(t, func() { Slice(testUnsortableInts{}).Sort() })
+	assert.Panics(t, func() { Slice(testUnsortableInts{}).Sort() })
 	assert.NotPanics(t, func() { Slice([]int(testUnsortableInts{})).Sort() })
-
-	// TODO: Make the commented test case above pass.
-	// Redesign sorting to not reflect on the slice element Kind, and rather use
-	// the Elem type, so if it doesn't implement sort.Interface then we don't try
-	// to sort it.
 
 	unsortable := testUnsortableInts{3, 5, 21, 1, 34, 55, 13, 2, 8, 89, 1}
 	assert.NotPanics(t, func() { Slice([]int(unsortable)).Sort() })
