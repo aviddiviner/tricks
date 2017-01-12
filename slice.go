@@ -83,7 +83,43 @@ func (ts TrickSlice) Last(n int) TrickSlice {
 
 func isValidMapFunc(funcType, sliceType reflect.Type) bool {
 	return funcType.NumIn() == 1 && funcType.NumOut() == 1 &&
-		funcType.In(0) == sliceType
+		funcType.In(0) == sliceType.Elem()
+}
+
+// All returns true if the given function returns true for every element in the
+// slice. Otherwise, it returns false.
+func (ts TrickSlice) All(fn interface{}) bool {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !isValidMapFunc(f.Type(), v.Type()) || f.Type().Out(0).Kind() != reflect.Bool {
+		panic("tricks: slice.All: invalid function type")
+	}
+
+	for i := 0; i < v.Len(); i++ {
+		val := v.Index(i)
+		if !f.Call([]reflect.Value{val})[0].Bool() {
+			return false
+		}
+	}
+	return true
+}
+
+// Any returns true if the given function returns true for any element in the
+// slice. Otherwise, it returns false.
+func (ts TrickSlice) Any(fn interface{}) bool {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !isValidMapFunc(f.Type(), v.Type()) || f.Type().Out(0).Kind() != reflect.Bool {
+		panic("tricks: slice.Any: invalid function type")
+	}
+
+	for i := 0; i < v.Len(); i++ {
+		val := v.Index(i)
+		if f.Call([]reflect.Value{val})[0].Bool() {
+			return true
+		}
+	}
+	return false
 }
 
 // GroupBy collects the slice values into a map, where the keys are the return
@@ -92,8 +128,8 @@ func isValidMapFunc(funcType, sliceType reflect.Type) bool {
 func (ts TrickSlice) GroupBy(fn interface{}) TrickMap {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidMapFunc(f.Type(), v.Type().Elem()) {
-		panic("tricks: slice.GroupBy: invalid grouping function")
+	if !isValidMapFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.GroupBy: invalid function type")
 	}
 	keyType := f.Type().Out(0)
 	valType := reflect.SliceOf(v.Type().Elem())
@@ -118,8 +154,8 @@ func (ts TrickSlice) GroupBy(fn interface{}) TrickMap {
 func (ts TrickSlice) Map(fn interface{}) TrickSlice {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidMapFunc(f.Type(), v.Type().Elem()) {
-		panic("tricks: slice.Map: invalid mapping function")
+	if !isValidMapFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.Map: invalid function type")
 	}
 	outType := f.Type().Out(0)
 	typ := reflect.SliceOf(outType)

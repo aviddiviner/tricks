@@ -32,4 +32,11 @@ func ExampleSlice_groupBy() {
 	// Output: [cat cow dog pig]
 }
 
+func ExampleSlice_strings() {
+	password := tricks.Slice([]rune("abracadabra")).Reverse().Value().([]rune)
+	fmt.Println(string(password))
+
+	// Output: arbadacarba
+}
+
 // TODO: Add variadic example.

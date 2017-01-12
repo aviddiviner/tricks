@@ -6,6 +6,23 @@ import (
 	"sort"
 )
 
+func swapValue(v reflect.Value, i, j int) {
+	vi := v.Index(i)
+	vii := reflect.ValueOf(vi.Interface())
+	vj := v.Index(j)
+	vi.Set(vj)
+	vj.Set(vii)
+}
+
+// Reverse reverses the order of elements of the slice in place.
+func (ts TrickSlice) Reverse() TrickSlice {
+	v := reflect.Value(ts)
+	for i, j := 0, v.Len()-1; i < j; i, j = i+1, j-1 {
+		swapValue(v, i, j)
+	}
+	return ts
+}
+
 // Multiple types of sortable reflect.Values so that we can have independant
 // Less() implementations, rather than one big switch statement inside Less().
 
@@ -16,14 +33,6 @@ type sortableStrings reflect.Value
 func (p sortableInts) Len() int    { return reflect.Value(p).Len() }
 func (p sortableFloats) Len() int  { return reflect.Value(p).Len() }
 func (p sortableStrings) Len() int { return reflect.Value(p).Len() }
-
-func swapValue(v reflect.Value, i, j int) {
-	vi := v.Index(i)
-	vii := reflect.ValueOf(vi.Interface())
-	vj := v.Index(j)
-	vi.Set(vj)
-	vj.Set(vii)
-}
 
 func (p sortableInts) Swap(i, j int)    { swapValue(reflect.Value(p), i, j) }
 func (p sortableFloats) Swap(i, j int)  { swapValue(reflect.Value(p), i, j) }

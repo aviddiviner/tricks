@@ -148,6 +148,33 @@ func TestSortInterfaceInPlace(t *testing.T) {
 	assert.Equal(t, sorted, animals)
 }
 
+func TestAllAny(t *testing.T) {
+	threes := []int{3, 6, 9, 12, 15, 18, 21, 24, 27, 30}
+
+	allMod3 := Slice(threes).All(func(n int) bool { return n%3 == 0 })
+	allMod2 := Slice(threes).All(func(n int) bool { return n%2 == 0 })
+	anyMod2 := Slice(threes).Any(func(n int) bool { return n%2 == 0 })
+	anyMod11 := Slice(threes).Any(func(n int) bool { return n%11 == 0 })
+
+	assert.True(t, allMod3)
+	assert.False(t, allMod2)
+	assert.True(t, anyMod2)
+	assert.False(t, anyMod11)
+}
+
+func TestReverse(t *testing.T) {
+	animals := []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
+	Slice(animals).Reverse()
+
+	expected := []string{"iguana", "pig", "bull", "cow", "bear", "cat", "dog"}
+	assert.Equal(t, expected, animals)
+
+	assert.Equal(t, []int{}, Slice([]int{}).Reverse().Value().([]int))
+	assert.Equal(t, []int{1}, Slice([]int{1}).Reverse().Value().([]int))
+	assert.Equal(t, []int{1, 2}, Slice([]int{2, 1}).Reverse().Value().([]int))
+	assert.Equal(t, []int{1, 2, 3}, Slice([]int{3, 2, 1}).Reverse().Value().([]int))
+}
+
 func TestGroupBy(t *testing.T) {
 	var animals = []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
 
