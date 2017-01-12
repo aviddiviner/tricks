@@ -77,6 +77,9 @@ func (p sortableIface) Less(i, j int) bool {
 var sortInterfaceType = reflect.TypeOf((*sort.Interface)(nil)).Elem()
 
 func getSortable(context string, v reflect.Value) sort.Interface {
+	if v.Type().Implements(sortInterfaceType) {
+		return sortableIface(v)
+	}
 	switch v.Type().Elem().Kind() {
 	case reflect.String:
 		return sortableStrings(v)
@@ -85,10 +88,7 @@ func getSortable(context string, v reflect.Value) sort.Interface {
 	case reflect.Float32, reflect.Float64:
 		return sortableFloats(v)
 	default:
-		if !v.Type().Implements(sortInterfaceType) {
-			panic("tricks: " + context + ": slice doesn't implement sort.Interface")
-		}
-		return sortableIface(v)
+		panic("tricks: " + context + ": slice doesn't implement sort.Interface")
 	}
 }
 

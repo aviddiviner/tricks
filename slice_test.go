@@ -115,37 +115,34 @@ func TestSortFloatsInPlace(t *testing.T) {
 	assert.Equal(t, sorted, numbers)
 }
 
-type testSortByLen []struct{ string }
-type testUnsortable []struct{ string }
+type testSortByLen []string
 
 func (t testSortByLen) Len() int           { return len(t) }
-func (t testSortByLen) Swap(i, j int)      { t[i].string, t[j].string = t[j].string, t[i].string }
-func (t testSortByLen) Less(i, j int) bool { return len(t[i].string) < len(t[j].string) }
+func (t testSortByLen) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
+func (t testSortByLen) Less(i, j int) bool { return len(t[i]) < len(t[j]) }
+
+type testUnsortable []struct{}
+type testUnsortableInts []int
 
 func TestSortInterfaceInPlace(t *testing.T) {
-	var animals = testSortByLen{
-		struct{ string }{"dog"},
-		struct{ string }{"cat"},
-		struct{ string }{"bear"},
-		struct{ string }{"cow"},
-		struct{ string }{"bull"},
-		struct{ string }{"pig"},
-		struct{ string }{"iguana"},
-	}
-
+	animals := testSortByLen{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
 	sorted := Slice(animals).Sort().Value().(testSortByLen)
-
-	var expected = testSortByLen{
-		struct{ string }{"dog"},
-		struct{ string }{"cat"},
-		struct{ string }{"cow"},
-		struct{ string }{"pig"},
-		struct{ string }{"bear"},
-		struct{ string }{"bull"},
-		struct{ string }{"iguana"},
-	}
-	assert.Equal(t, expected, sorted)
 	assert.Equal(t, sorted, animals)
+	expected := testSortByLen{"dog", "cat", "cow", "pig", "bear", "bull", "iguana"}
+	assert.Equal(t, expected, animals)
+
+	assert.Panics(t, func() { Slice(testUnsortable{}).Sort() })
+	// assert.Panics(t, func() { Slice(testUnsortableInts{}).Sort() })
+	assert.NotPanics(t, func() { Slice([]int(testUnsortableInts{})).Sort() })
+
+	// TODO: Make the commented test case above pass.
+	// Redesign sorting to not reflect on the slice element Kind, and rather use
+	// the Elem type, so if it doesn't implement sort.Interface then we don't try
+	// to sort it.
+
+	unsortable := testUnsortableInts{3, 5, 21, 1, 34, 55, 13, 2, 8, 89, 1}
+	assert.NotPanics(t, func() { Slice([]int(unsortable)).Sort() })
+	assert.Equal(t, []int{1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89}, []int(unsortable))
 }
 
 func TestAllAny(t *testing.T) {
@@ -164,8 +161,8 @@ func TestAllAny(t *testing.T) {
 
 func TestReverse(t *testing.T) {
 	animals := []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
-	Slice(animals).Reverse()
-
+	reversed := Slice(animals).Reverse().Value().([]string)
+	assert.Equal(t, reversed, animals)
 	expected := []string{"iguana", "pig", "bull", "cow", "bear", "cat", "dog"}
 	assert.Equal(t, expected, animals)
 
