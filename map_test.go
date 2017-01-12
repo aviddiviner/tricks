@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMapKeys(t *testing.T) {
+func TestMapKeysAndValues(t *testing.T) {
 	var alphabet = map[string]string{
 		"A": "Apple",
 		"B": "Ball",
@@ -17,8 +17,10 @@ func TestMapKeys(t *testing.T) {
 	}
 
 	letters := Map(alphabet).Keys().Sort().Value().([]string)
+	words := Map(alphabet).Values().Sort().Value().([]string)
 
 	assert.Equal(t, []string{"A", "B", "C", "D", "E", "F"}, letters)
+	assert.Equal(t, []string{"Apple", "Ball", "Cat", "Doll", "Egg", "Frog"}, words)
 }
 
 func TestMapCopy(t *testing.T) {

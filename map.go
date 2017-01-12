@@ -52,6 +52,20 @@ func (tm TrickMap) Keys() TrickSlice {
 	return TrickSlice(out)
 }
 
+// Values returns a slice of the map's values.
+func (tm TrickMap) Values() TrickSlice {
+	v := reflect.Value(tm)
+	typ := reflect.SliceOf(v.Type().Elem())
+
+	k := v.MapKeys()
+	out := reflect.MakeSlice(typ, len(k), len(k))
+	for i := 0; i < len(k); i++ {
+		out.Index(i).Set(v.MapIndex(k[i]))
+	}
+
+	return TrickSlice(out)
+}
+
 // Only returns a map containing only those keys in the given slice. Also
 // accepts a single key, or nil (return empty map). [2]
 func (tm TrickMap) Only(keys interface{}) TrickMap {
