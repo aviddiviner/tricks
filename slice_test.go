@@ -242,3 +242,11 @@ func TestMaxAndMin(t *testing.T) {
 	_, ok = Slice([]int{}).Min().(int)
 	assert.False(t, ok)
 }
+
+func TestJoin(t *testing.T) {
+	foodChain := Slice("dog", "cat", "bear", "cow").Join(" eats ")
+	assert.Equal(t, "dog eats cat eats bear eats cow", foodChain)
+
+	assert.Panics(t, func() { Slice(1, 2, 3).Join("") })
+	assert.Panics(t, func() { Slice('a', 'b', 'c').Join("") }) // TODO: Allow joining []rune.
+}
