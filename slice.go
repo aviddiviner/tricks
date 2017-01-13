@@ -6,38 +6,34 @@ import (
 
 type TrickSlice reflect.Value
 
-var trickSliceType = reflect.TypeOf((*TrickSlice)(nil)).Elem()
+var typeTrickSlice = reflect.TypeOf((*TrickSlice)(nil)).Elem()
 
-func Slice(sliceOrElement interface{}, moreElements ...interface{}) TrickSlice {
-	v := reflect.ValueOf(sliceOrElement)
-	if !v.IsValid() { // nil
-		v = reflect.ValueOf([]interface{}{})
-		return TrickSlice(v)
+func Slice(sliceOrElements ...interface{}) TrickSlice {
+	s := reflect.ValueOf(sliceOrElements)
+	if len(sliceOrElements) == 0 {
+		return TrickSlice(s)
 	}
-	if len(moreElements) == 0 {
+	// Try to identify a type, else we fall back to []interface{}
+	v := reflect.ValueOf(sliceOrElements[0])
+	if !v.IsValid() { // nil
+		return TrickSlice(s)
+	}
+	if len(sliceOrElements) == 1 {
 		if v.Kind() == reflect.Slice { // TrickSlice is a Kind of reflect.Struct
 			return TrickSlice(v)
 		}
-		if v.Type() == trickSliceType {
-			return sliceOrElement.(TrickSlice)
+		if v.Type() == typeTrickSlice {
+			return sliceOrElements[0].(TrickSlice)
 		}
 	}
 	typ := reflect.SliceOf(v.Type())
-	slice := reflect.MakeSlice(typ, len(moreElements)+1, len(moreElements)+1)
-	slice.Index(0).Set(v)
-	for i := 0; i < len(moreElements); i++ {
-		el := reflect.ValueOf(moreElements[i])
-		// Nicer messages on our panics.
-		if !el.IsValid() {
-			// panic: reflect: call of reflect.Value.Set on zero Value
-			panic("tricks: Slice: unexpected nil value as variadic element")
+	slice := reflect.MakeSlice(typ, len(sliceOrElements), len(sliceOrElements))
+	for i := 0; i < len(sliceOrElements); i++ {
+		el := reflect.ValueOf(sliceOrElements[i])
+		if !el.IsValid() || el.Type() != v.Type() {
+			return TrickSlice(s) // fall back to []interface{}
 		}
-		if el.Type() != v.Type() {
-			// panic: reflect.Set: value of type string is not assignable to type int
-			panic("tricks: Slice: value of type " + el.Type().String() +
-				" is not assignable to slice of type " + typ.String())
-		}
-		slice.Index(i + 1).Set(el)
+		slice.Index(i).Set(el)
 	}
 	return TrickSlice(slice)
 }

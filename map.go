@@ -66,11 +66,12 @@ func (tm TrickMap) Values() TrickSlice {
 	return TrickSlice(out)
 }
 
-// Only returns a map containing only those keys in the given slice. Also
-// accepts a single key, or nil (return empty map). [2]
-func (tm TrickMap) Only(keys interface{}) TrickMap {
+// Only returns a new map containing only the given keys. If no keys are given,
+// this returns an empty map of the same type. Only accepts the same arguments
+// as Slice() [2]
+func (tm TrickMap) Only(keys ...interface{}) TrickMap {
 	v := reflect.Value(tm)
-	k := reflect.Value(Slice(keys))
+	k := reflect.Value(Slice(keys...))
 
 	keyType := v.Type().Key()
 	mapType := reflect.MapOf(keyType, v.Type().Elem())

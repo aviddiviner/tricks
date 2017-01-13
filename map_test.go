@@ -87,9 +87,12 @@ func TestMapOnly(t *testing.T) {
 	single := Map(alphabet).Only("A").Value().(map[string]string)
 	assert.Equal(t, map[string]string{"A": "Apple"}, single)
 
-	missing := Map(alphabet).Only("G").Value().(map[string]string)
+	missing := Map(alphabet).Only("X").Value().(map[string]string)
 	assert.Equal(t, map[string]string{}, missing)
 
-	empty := Map(alphabet).Only(nil).Value().(map[string]string)
+	empty := Map(alphabet).Only().Value().(map[string]string)
 	assert.Equal(t, map[string]string{}, empty)
+
+	assert.Panics(t, func() { Map(alphabet).Only(nil) })
+	assert.Panics(t, func() { Map(alphabet).Only(1) })
 }

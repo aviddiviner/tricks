@@ -22,14 +22,32 @@ func TestSliceNil(t *testing.T) {
 	assert.Equal(t, 0, len(Slice([]interface{}{}).Value().([]interface{})))
 	assert.Equal(t, 1, len(Slice([]interface{}{nil}).Value().([]interface{})))
 	assert.Equal(t, 3, len(Slice([]interface{}{nil, nil, nil}).Value().([]interface{})))
-	assert.Equal(t, 0, len(Slice(nil).Value().([]interface{})))
-	assert.Equal(t, 0, len(Slice(nil, nil, nil).Value().([]interface{})))
+	assert.Equal(t, 0, len(Slice().Value().([]interface{})))
+	assert.Equal(t, 1, len(Slice(nil).Value().([]interface{})))
+	assert.Equal(t, 3, len(Slice(nil, nil, nil).Value().([]interface{})))
+}
+
+func TestSliceInterface(t *testing.T) {
+	actual := Slice([]interface{}{1, "2", 3.0, nil}).Value()
+	expected := []interface{}{1, "2", 3.0, nil}
+	assert.EqualValues(t, expected, actual)
+
+	values := actual.([]interface{})
+	assert.Equal(t, expected[0], values[0])
+	assert.Equal(t, expected[1], values[1])
+	assert.Equal(t, expected[2], values[2])
+	assert.Equal(t, expected[3], values[3])
+
+	// These type assertions should all work.
+	assert.Equal(t, 5, len(Slice(1, 2, 3.0, 4, "5").Value().([]interface{})))
+	assert.Equal(t, 4, len(Slice(1, 2, 3, nil).Value().([]interface{})))
+	assert.Equal(t, 3, len(Slice(Slice(1, 2, 3), 4, 5).Value().([]interface{})))
+	assert.Equal(t, 2, len(Slice(nil, struct{ string }{""}).Value().([]interface{})))
 }
 
 func TestSlicePanics(t *testing.T) {
-	assert.Panics(t, func() { Slice(1, 2, 3, 4, "5") })
-	assert.Panics(t, func() { Slice(1, 2, 3, 4, nil) })
-	assert.Panics(t, func() { Slice(Slice(1, 2, 3), 4, 5) })
+	t.Log("TODO")
+	// assert.Panics(t, func() { Slice(...) }) // TODO
 }
 
 func TestSliceSingle(t *testing.T) {
@@ -43,6 +61,56 @@ func TestSliceTrickSlice(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3}, first.Value().([]int))
 	assert.Equal(t, []int{1, 2, 3}, second.Value().([]int))
 	assert.Equal(t, first, second)
+}
+
+func TestSliceOfSlices(t *testing.T) {
+	ss := Slice([]int{1, 2}, []int{3, 4})
+	assert.Equal(t, [][]int{[]int{1, 2}, []int{3, 4}}, ss.Value().([][]int))
+}
+
+// TODO: Get this to pass:
+// func TestSliceOfTrickSlices(t *testing.T) {
+// 	ss := Slice(Slice(1, 2), Slice(3, 4))
+// 	assert.Equal(t, [][]int{[]int{1, 2}, []int{3, 4}}, ss.Value().([][]int))
+// }
+
+func TestSliceOfChans(t *testing.T) {
+	a := make(chan struct{})
+	b := make(chan struct{})
+	assert.Equal(t, []chan struct{}{a, b}, Slice(a, b).Value().([]chan struct{}))
+}
+
+func TestSliceOfStructLiterals(t *testing.T) {
+	ss := Slice(struct{ string }{"abc"}, struct{ string }{"def"})
+	expected := []struct{ string }{struct{ string }{"abc"}, struct{ string }{"def"}}
+	assert.Equal(t, expected, ss.Value().([]struct{ string }))
+
+	ss2 := Slice(struct {
+		string
+		int
+	}{"abc", 123}, struct {
+		string
+		int
+	}{"def", 456})
+
+	expected2 := []struct {
+		string
+		int
+	}{
+		struct {
+			string
+			int
+		}{"abc", 123},
+		struct {
+			string
+			int
+		}{"def", 456},
+	}
+
+	assert.Equal(t, expected2, ss2.Value().([]struct {
+		string
+		int
+	}))
 }
 
 func TestFirstReslicesOriginal(t *testing.T) {
@@ -85,7 +153,8 @@ func TestSliceLen(t *testing.T) {
 	assert.Equal(t, 4, Slice([]int{4, 3, 2, 1}).Len())
 	assert.Equal(t, 4, Slice(4, 3, 2, 1).Len())
 	assert.Equal(t, 1, Slice([]interface{}{nil}).Len())
-	assert.Equal(t, 0, Slice(nil).Len())
+	assert.Equal(t, 1, Slice(nil).Len())
+	assert.Equal(t, 0, Slice().Len())
 }
 
 func TestSortStringsInPlace(t *testing.T) {
