@@ -29,14 +29,26 @@ func (ts TrickSlice) Reverse() TrickSlice {
 type sortableInts reflect.Value
 type sortableFloats reflect.Value
 type sortableStrings reflect.Value
+type sortableIface reflect.Value
 
 func (p sortableInts) Len() int    { return reflect.Value(p).Len() }
 func (p sortableFloats) Len() int  { return reflect.Value(p).Len() }
 func (p sortableStrings) Len() int { return reflect.Value(p).Len() }
 
+func (p sortableIface) Len() int {
+	f := reflect.Value(p).MethodByName("Len")
+	return f.Call(nil)[0].Interface().(int)
+}
+
 func (p sortableInts) Swap(i, j int)    { swapValue(reflect.Value(p), i, j) }
 func (p sortableFloats) Swap(i, j int)  { swapValue(reflect.Value(p), i, j) }
 func (p sortableStrings) Swap(i, j int) { swapValue(reflect.Value(p), i, j) }
+
+func (p sortableIface) Swap(i, j int) {
+	f := reflect.Value(p).MethodByName("Swap")
+	args := []reflect.Value{reflect.ValueOf(i), reflect.ValueOf(j)}
+	f.Call(args)
+}
 
 func (p sortableInts) Less(i, j int) bool {
 	v := reflect.Value(p)
@@ -55,23 +67,10 @@ func (p sortableStrings) Less(i, j int) bool {
 	return v.Index(i).String() < v.Index(j).String()
 }
 
-type sortableIface reflect.Value
-
-func (p sortableIface) Len() int {
-	f := reflect.Value(p).MethodByName("Len")
-	return f.Call(nil)[0].Interface().(int)
-}
-
-func (p sortableIface) Swap(i, j int) {
-	f := reflect.Value(p).MethodByName("Swap")
-	args := []reflect.Value{reflect.ValueOf(i), reflect.ValueOf(j)}
-	f.Call(args)
-}
-
 func (p sortableIface) Less(i, j int) bool {
 	f := reflect.Value(p).MethodByName("Less")
 	args := []reflect.Value{reflect.ValueOf(i), reflect.ValueOf(j)}
-	return f.Call(args)[0].Interface().(bool)
+	return f.Call(args)[0].Bool()
 }
 
 // We declare these types because we want to check that the slice is of this
