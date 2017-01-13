@@ -86,12 +86,35 @@ func isValidMapFunc(funcType, sliceType reflect.Type) bool {
 		funcType.In(0) == sliceType.Elem()
 }
 
+func isValidBoolFunc(funcType, sliceType reflect.Type) bool {
+	return isValidMapFunc(funcType, sliceType) &&
+		funcType.Out(0).Kind() == reflect.Bool
+}
+
+// Any returns true if the given function returns true for any element in the
+// slice. Otherwise, it returns false.
+func (ts TrickSlice) Any(fn interface{}) bool {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !isValidBoolFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.Any: invalid function type")
+	}
+
+	for i := 0; i < v.Len(); i++ {
+		val := v.Index(i)
+		if f.Call([]reflect.Value{val})[0].Bool() {
+			return true
+		}
+	}
+	return false
+}
+
 // All returns true if the given function returns true for every element in the
 // slice. Otherwise, it returns false.
 func (ts TrickSlice) All(fn interface{}) bool {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidMapFunc(f.Type(), v.Type()) || f.Type().Out(0).Kind() != reflect.Bool {
+	if !isValidBoolFunc(f.Type(), v.Type()) {
 		panic("tricks: slice.All: invalid function type")
 	}
 
@@ -104,19 +127,63 @@ func (ts TrickSlice) All(fn interface{}) bool {
 	return true
 }
 
-// Any returns true if the given function returns true for any element in the
+// None returns true if the given function returns false for every element in the
 // slice. Otherwise, it returns false.
-func (ts TrickSlice) Any(fn interface{}) bool {
+func (ts TrickSlice) None(fn interface{}) bool {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidMapFunc(f.Type(), v.Type()) || f.Type().Out(0).Kind() != reflect.Bool {
-		panic("tricks: slice.Any: invalid function type")
+	if !isValidBoolFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.None: invalid function type")
 	}
 
 	for i := 0; i < v.Len(); i++ {
 		val := v.Index(i)
 		if f.Call([]reflect.Value{val})[0].Bool() {
-			return true
+			return false
+		}
+	}
+	return true
+}
+
+// One returns true if the given function returns true for exactly one element
+// in the slice. Otherwise, it returns false.
+func (ts TrickSlice) One(fn interface{}) bool {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !isValidBoolFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.One: invalid function type")
+	}
+
+	found := false
+	for i := 0; i < v.Len(); i++ {
+		val := v.Index(i)
+		if f.Call([]reflect.Value{val})[0].Bool() {
+			if found {
+				return false
+			}
+			found = true
+		}
+	}
+	return found
+}
+
+// Many returns true if the given function returns true for more than one element
+// in the slice. Otherwise, it returns false.
+func (ts TrickSlice) Many(fn interface{}) bool {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !isValidBoolFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.Many: invalid function type")
+	}
+
+	found := false
+	for i := 0; i < v.Len(); i++ {
+		val := v.Index(i)
+		if f.Call([]reflect.Value{val})[0].Bool() {
+			if found {
+				return true
+			}
+			found = true
 		}
 	}
 	return false

@@ -142,18 +142,44 @@ func TestSortUnsortableTypes(t *testing.T) {
 	assert.Equal(t, []int{1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89}, []int(unsortable))
 }
 
-func TestAllAny(t *testing.T) {
-	threes := []int{3, 6, 9, 12, 15, 18, 21, 24, 27, 30}
+func TestAny(t *testing.T) {
+	creatures := Slice("ant", "bear", "cat")
+	assert.True(t, creatures.Any(func(word string) bool { return len(word) < 4 }))
+	assert.True(t, creatures.Any(func(word string) bool { return len(word) <= 4 }))
+	assert.True(t, creatures.Any(func(word string) bool { return len(word) == 4 }))
+	assert.False(t, creatures.Any(func(word string) bool { return len(word) > 4 }))
+}
 
-	allMod3 := Slice(threes).All(func(n int) bool { return n%3 == 0 })
-	allMod2 := Slice(threes).All(func(n int) bool { return n%2 == 0 })
-	anyMod2 := Slice(threes).Any(func(n int) bool { return n%2 == 0 })
-	anyMod11 := Slice(threes).Any(func(n int) bool { return n%11 == 0 })
+func TestAll(t *testing.T) {
+	creatures := Slice("ant", "bear", "cat")
+	assert.False(t, creatures.All(func(word string) bool { return len(word) < 4 }))
+	assert.True(t, creatures.All(func(word string) bool { return len(word) <= 4 }))
+	assert.False(t, creatures.All(func(word string) bool { return len(word) == 4 }))
+	assert.False(t, creatures.All(func(word string) bool { return len(word) > 4 }))
+}
 
-	assert.True(t, allMod3)
-	assert.False(t, allMod2)
-	assert.True(t, anyMod2)
-	assert.False(t, anyMod11)
+func TestNone(t *testing.T) {
+	creatures := Slice("ant", "bear", "cat")
+	assert.False(t, creatures.None(func(word string) bool { return len(word) < 4 }))
+	assert.False(t, creatures.None(func(word string) bool { return len(word) <= 4 }))
+	assert.False(t, creatures.None(func(word string) bool { return len(word) == 4 }))
+	assert.True(t, creatures.None(func(word string) bool { return len(word) > 4 }))
+}
+
+func TestOne(t *testing.T) {
+	creatures := Slice("ant", "bear", "cat")
+	assert.False(t, creatures.One(func(word string) bool { return len(word) < 4 }))
+	assert.False(t, creatures.One(func(word string) bool { return len(word) <= 4 }))
+	assert.True(t, creatures.One(func(word string) bool { return len(word) == 4 }))
+	assert.False(t, creatures.One(func(word string) bool { return len(word) > 4 }))
+}
+
+func TestMany(t *testing.T) {
+	creatures := Slice("ant", "bear", "cat")
+	assert.True(t, creatures.Many(func(word string) bool { return len(word) < 4 }))
+	assert.True(t, creatures.Many(func(word string) bool { return len(word) <= 4 }))
+	assert.False(t, creatures.Many(func(word string) bool { return len(word) == 4 }))
+	assert.False(t, creatures.Many(func(word string) bool { return len(word) > 4 }))
 }
 
 func TestReverse(t *testing.T) {
