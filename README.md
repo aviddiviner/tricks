@@ -2,6 +2,8 @@
 
 An entirely unidiomatic approach to working with maps and slices in Go.
 
+> _This is currently a work in progress (for probably the next few weeks). Once I'm happy with the API, I'll remove this notice. Until then, expect things to change. I'm just putting it up on GitHub so long, because `git push` is very satisfying and make me feel good._
+
 ## What is this?
 
 Originally started as an exercise in teaching myself Go reflection, I got a little carried away... and created something _awesome_. This goes out to all those Gophers with a yearning in their hearts for the good old days of chaining long strings of methods together (à la Ruby).
