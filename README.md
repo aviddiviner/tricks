@@ -1,4 +1,4 @@
-# tricks
+# tricks [![GoDoc](https://godoc.org/github.com/aviddiviner/tricks?status.svg)](https://godoc.org/github.com/aviddiviner/tricks)
 
 An entirely unidiomatic approach to working with maps and slices in Go.
 
@@ -10,7 +10,7 @@ Originally started as an exercise in teaching myself Go reflection, I got a litt
 
 ### Show me examples!
 
-Sure. The best place to start is probably [the docs](//godoc.org/github.com/aviddiviner/tricks), but here's some sexy code to admire:
+Sure. The best place to start is probably [the docs](https://godoc.org/github.com/aviddiviner/tricks), but here's some sexy code to admire:
 
 ```go
 animals := []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
@@ -64,7 +64,7 @@ func groupLogsByDate(logs []Timelog, amount, offset int) map[string][]Timelog {
 }
 ```
 
-I was _pleased_, and filled with a warm, fuzzy love for Go. So simple, and clear. Done.
+I was _pleased_, and filled with a warm, fuzzy love for Go. So simple, and clear. _Finish en klaar._
 
 But yet... I didn't feel complete. I felt like I wanted more. I longed for the excitement of mapping, filtering, sorting, reducing, grouping... maybe all in one long line that does _all of the things_. I wanted a little box of tricks that I could use to just chain everything together and make **✨magic✨** happen.
 
@@ -76,11 +76,11 @@ I mean, all I really had to do was:
 1. Take the last/first few
 1. Return a map with those keys
 
-That should be 5 lines of code, right? I mean, it used to be that way... in _Ruby_.
+That should be like 5 lines of code, right? I mean, it used to be that way... in _Ruby_.
 
-_“No!”_ I told myself. _“This is not Ruby! This is a grown-up language. Used by grown-ups. For big, serious, grown-up things!”_ ... _“Go is this way for a **reason**.”_
+_"No!"_ I told myself. _"This is not Ruby! This is a grown-up language. Used by grown-ups. For big, serious, grown-up things!"_ ... _"Go is this way for a **reason**."_
 
-I went to bed that night, wrestling with my feelings of inner turmoil. I couldn't quiet that nagging inner voice. I knew it had to be possible. Go has function literals. Go has reflection. There must be a way to have my cake _and_ eat it.
+So I went to bed that night, wrestling with my feelings of inner turmoil. I couldn't quiet that little inner voice. I knew it had to be possible. Go has function literals, right. Go has reflection. This must be possible. There must be a way to have my cake _and_ eat it.
 
 Well... it turns out there was a way, and I found it. And you just found it too. I woke up early the next morning and, after much `reflect`-ing, I emerged with this thing of beauty:
 
@@ -107,31 +107,26 @@ func groupLogsByDate(logs []Timelog, amount, offset int) map[string][]Timelog {
 }
 ```
 
-**🤘YEAAA!🤘** Now that's what I'm talking about! I felt the mad rush of power from chaining all those methods and now, I was _truly pleased_. I slept well that night, knowing I had done a bad thing, but still, feeling damn good about it.
+**🤘YEAAA!🤘** Now that's what I'm talking about! I felt the mad rush of power from chaining all those methods and now I was _truly pleased_. I slept well that night, knowing I had done a bad thing, but still, feeling damn good about it.
 
-## Should I actually use this?
+## So, should I actually use this?
 
 Probably not.
 
-If you're working on a big project, or if someone else has to maintain your code, certainly not. Having said that though... there's nothing _technically_ wrong with what I've done here. And you must admit, it _is_ pretty awesome. So, if you like writing less code, looking cool in front of your friends, and building things _super fast_ with your amazing new magic code skills, then you know what to do.
+If you're working on a big project, or if someone else has to maintain your code, certainly not. Having said that though... there's nothing _technically_ wrong with what I've done here. And you must admit, it _is_ pretty awesome. So, if you like writing less code, looking cool in front of your friends, and building things _super fast_ with your ✨magical✨ new code skills, then you know what to do. `go get` 'em.
 
-I use it for my pet projects, so I don't mind either way!
+### Seriously though, why should or shouldn't I use this?
 
-### I still can't decide
+To my mind, it's a choice between a declarative vs. imperative style.
 
-In all seriousness... to my mind, the goal is readability (or parse-ability / understandability). The trade-off here is between _expressiveness_ vs. _accuracy_.
+The declarative style is more _expressive_. We improve readability by simply reducing the code on the page, keeping things short and to the point. This makes it easier to parse what is intended (vs. what is actually being done).
 
-On the side of _accuracy_, readability is gained from code that is clear and precise (as Go usually is). You can see exactly what is being done, and understand the inner workings of each piece. This makes for efficient code too.
+The imperative style is more _accurate_. Readability is gained from code that is clear and precise (as Go usually is). You can see exactly what is being done, and understand the inner workings of each piece. This usually makes for more efficient code too.
 
-On the side of _expressiveness_, readability is improved by simply reducing the code on the page, and keeping things short and to the point. This makes it easier to parse what is intended (vs. what is actually being done).
+I feel that **tricks** makes it easier to write less, and be more expressive, at the cost of reduced accuracy.
 
-**tricks** makes it easier to write less code, and get your point across more succinctly. Yes, in all that brevity you may be obscuring over some important details. On balance though, I prefer the approach of less code, even if it means I'm copying an extra slice here or there.
+But yes, please only use this in your pet projects. You don't want to take a dependency on a single package that changes how your code is structured in such a fundamental way. This forces everyone else to learn how some crazy package works just to maintain your code. Rather keep things plain and idiomatic.
 
-### I still can't decide!
+Interestingly, there are some nice new features coming in Go 1.8 which do things similar to what I've done here, like [`sort.Slice`](https://tip.golang.org/pkg/sort/#Slice). So there is a balance to be struck between these two styles. Hopefully this package can inspire some people, and maybe more of these tricks will slowly be superseded by conveniences from the Go core.
 
-Which saying do you prefer? Pick one:
-
-A. _“The devil's in the details.”_
-B. _“Less is more.”_
-
-If you chose option A, then move along. If you chose option B, then `go get` 'em.
+[**Now go and read the API docs please, and make up your mind over there.**](https://godoc.org/github.com/aviddiviner/tricks)
