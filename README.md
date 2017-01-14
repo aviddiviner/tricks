@@ -4,7 +4,7 @@ An entirely unidiomatic approach to working with maps and slices in Go.
 
 > _This is currently a work in progress (for probably the next few weeks). Once I'm happy with the API, I'll remove this notice. Until then, expect things to change. I'm just putting it up on GitHub so long, because `git push` is very satisfying and it makes me feel good._
 >
-> _According to [this XKCD comic](https://xkcd.com/1205/), I can probably work on this for about 4 weeks, before I'm spending more time than it might save me._
+> _According to [this XKCD comic](https://xkcd.com/1205/), I can probably work on this for about 4 weeks, before I'm spending more time than it might ever save me._
 
 ## What is this?
 
@@ -17,14 +17,33 @@ Sure. The best place to start is probably [the docs](https://godoc.org/github.co
 ```go
 animals := []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
 bearCow := tricks.Slice(animals).
-    Map(strings.ToUpper).
+    Map(strings.Title).
     Last(5).
     First(2).
-    Value().([]string) // [BEAR COW]
+    Value().([]string) // [Bear Cow]
 ```
 
 ```go
-// TODO: More, and better examples.
+byLength := func(s string) int { return len(s) }
+schweinehund := tricks.Slice(animals).
+    GroupBy(byLength).  // map[4:[bear bull] 6:[iguana] 3:[dog cat cow pig]] ¹
+    Only(3, 4).         // map[4:[bear bull] 3:[dog cat cow pig]] ¹
+    Values().           // [[dog cat cow pig] [bear bull]] ¹
+    Flatten().          // [dog cat cow pig bear bull]
+    Sort().             // [bear bull cat cow dog pig]
+    Last(2).            // [dog pig]
+    Reverse().          // [pig dog]
+    Join("-")           // "pig-dog"
+
+// ¹ No guarantee on ordering in a map.
+```
+
+```go
+runes := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1).
+    Map(func(i int) rune { return rune(i + 96) }).
+    Value().([]rune)
+
+string(runes) // "abracadabra"
 ```
 
 ### TL;DR

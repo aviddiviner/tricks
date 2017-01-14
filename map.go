@@ -36,7 +36,8 @@ func (tm TrickMap) Len() int {
 	return reflect.Value(tm).Len()
 }
 
-// Keys returns a slice of the map's keys.
+// Keys returns a slice of the map's keys. There is no guarantee on ordering of
+// the keys.
 func (tm TrickMap) Keys() TrickSlice {
 	v := reflect.Value(tm)
 	typ := reflect.SliceOf(v.Type().Key())
@@ -50,7 +51,8 @@ func (tm TrickMap) Keys() TrickSlice {
 	return TrickSlice(out)
 }
 
-// Values returns a slice of the map's values.
+// Values returns a slice of the map's values. There is no guarantee on ordering
+// of the values.
 func (tm TrickMap) Values() TrickSlice {
 	v := reflect.Value(tm)
 	typ := reflect.SliceOf(v.Type().Elem())
