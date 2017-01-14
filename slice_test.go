@@ -27,6 +27,35 @@ func TestSliceNil(t *testing.T) {
 	assert.Equal(t, 3, len(Slice(nil, nil, nil).Value().([]interface{})))
 }
 
+func TestSliceVariadic(t *testing.T) {
+	assert.Equal(t, 3, len(Slice(1, 2, 3).Value().([]int)))
+
+	// These are quirky, but there's no good way around it. The variadic args
+	// are always going to be received as []interface{}, so we'll have no idea
+	// of knowing if we were passed an actual int, or a interface{}(int).
+	assert.Equal(t, 3, len(Slice(interface{}(1), 2, 3).Value().([]int)))
+	assert.Equal(t, 3, len(Slice(1, 2, interface{}(3)).Value().([]int)))
+
+	// Also, the nil values are just treated as zeroes of that particular type
+	// (in this case, zero valued ints, which are just 0).
+	assert.Equal(t, 3, len(Slice(1, 2, nil).Value().([]int)))
+	assert.Equal(t, 3, len(Slice(nil, 2, 3).Value().([]int)))
+
+	// So, either we treat nils as zeroes of the shared type, or we're forced
+	// to type all variadic constructions containing nil values as []interface{}.
+	//
+	// In particular, if we make this test case pass:
+	//   assert.NotPanics(t, func() { Slice(nil, 2, 3).Value().([]interface{}) })
+	//
+	// Then this test case will fail:
+	//   a, b := 1, 2
+	//   assert.NotPanics(t, func() { Slice(&a, &b, nil).Value().([]*int) })
+	//
+	// And I think we should rather have this latter one pass.
+	//
+	// TODO: Document this fact: Slice(1, 2, nil) == []int{1, 2, 0}
+}
+
 func TestSliceInterface(t *testing.T) {
 	actual := Slice([]interface{}{1, "2", 3.0, nil}).Value()
 	expected := []interface{}{1, "2", 3.0, nil}
@@ -38,11 +67,19 @@ func TestSliceInterface(t *testing.T) {
 	assert.Equal(t, expected[2], values[2])
 	assert.Equal(t, expected[3], values[3])
 
-	// These type assertions should all work.
+	// These have no common type; we resort to []interface{}.
 	assert.Equal(t, 5, len(Slice(1, 2, 3.0, 4, "5").Value().([]interface{})))
-	assert.Equal(t, 4, len(Slice(1, 2, 3, nil).Value().([]interface{})))
 	assert.Equal(t, 3, len(Slice(Slice(1, 2, 3), 4, 5).Value().([]interface{})))
-	assert.Equal(t, 2, len(Slice(nil, struct{ string }{""}).Value().([]interface{})))
+
+	// These share a common type, with some zero values.
+	assert.Equal(t, 4, len(Slice(1, 2, 3, nil).Value().([]int)))
+	assert.Equal(t, 2, len(Slice(nil, struct{ string }{""}).Value().([]struct{ string })))
+}
+
+func TestSliceInterfaceSplat(t *testing.T) {
+	numbers := []interface{}{1, 2, 3, 4, 5}
+	ints := Slice(numbers...).Value()
+	assert.Equal(t, []int{1, 2, 3, 4, 5}, ints.([]int))
 }
 
 func TestSlicePanics(t *testing.T) {
@@ -92,12 +129,24 @@ func TestSliceOfChans(t *testing.T) {
 	assert.Equal(t, []chan struct{}{a, b}, Slice(a, b).Value().([]chan struct{}))
 }
 
+func TestSliceOfPointers(t *testing.T) {
+	a, b := 3, 4
+
+	ptrSlice := Slice(&a, &b)
+	expected := []*int{&a, &b}
+	assert.Equal(t, expected, ptrSlice.Value().([]*int))
+
+	ptrNilSlice := Slice(&a, &b, nil)
+	expectedNil := []*int{&a, &b, nil}
+	assert.Equal(t, expectedNil, ptrNilSlice.Value().([]*int))
+}
+
 func TestSliceOfStructLiterals(t *testing.T) {
 	ss := Slice(struct{ string }{"abc"}, struct{ string }{"def"})
 	expected := []struct{ string }{struct{ string }{"abc"}, struct{ string }{"def"}}
 	assert.Equal(t, expected, ss.Value().([]struct{ string }))
 
-	ss2 := Slice(struct {
+	ssInt := Slice(struct {
 		string
 		int
 	}{"abc", 123}, struct {
@@ -105,7 +154,7 @@ func TestSliceOfStructLiterals(t *testing.T) {
 		int
 	}{"def", 456})
 
-	expected2 := []struct {
+	expectedInt := []struct {
 		string
 		int
 	}{
@@ -119,7 +168,7 @@ func TestSliceOfStructLiterals(t *testing.T) {
 		}{"def", 456},
 	}
 
-	assert.Equal(t, expected2, ss2.Value().([]struct {
+	assert.Equal(t, expectedInt, ssInt.Value().([]struct {
 		string
 		int
 	}))

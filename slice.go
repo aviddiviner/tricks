@@ -6,19 +6,23 @@ import (
 
 type TrickSlice reflect.Value
 
-var typeTrickSlice = reflect.TypeOf((*TrickSlice)(nil)).Elem()
+var (
+	typeTrickSlice = reflect.TypeOf((*TrickSlice)(nil)).Elem()  // TrickSlice
+	typeInterface  = reflect.TypeOf((*interface{})(nil)).Elem() // interface{}
+)
 
 func Slice(sliceOrElements ...interface{}) TrickSlice {
-	s := reflect.ValueOf(sliceOrElements)
+	s := reflect.ValueOf(sliceOrElements) // []interface{}
+
 	if len(sliceOrElements) == 0 {
 		return TrickSlice(s)
 	}
-	// Try to identify a type, else we fall back to []interface{}
-	v := reflect.ValueOf(sliceOrElements[0])
-	if !v.IsValid() { // nil
-		return TrickSlice(s)
-	}
+
 	if len(sliceOrElements) == 1 {
+		v := reflect.ValueOf(sliceOrElements[0])
+		if !v.IsValid() { // nil
+			return TrickSlice(s)
+		}
 		if v.Kind() == reflect.Slice { // TrickSlice is a Kind of reflect.Struct
 			return TrickSlice(v)
 		}
@@ -26,14 +30,35 @@ func Slice(sliceOrElements ...interface{}) TrickSlice {
 			return sliceOrElements[0].(TrickSlice)
 		}
 	}
-	typ := reflect.SliceOf(v.Type())
-	slice := reflect.MakeSlice(typ, len(sliceOrElements), len(sliceOrElements))
+
+	// Try to make a typed slice from variadic args. First identify the type.
+	var typ reflect.Type
 	for i := 0; i < len(sliceOrElements); i++ {
 		el := reflect.ValueOf(sliceOrElements[i])
-		if !el.IsValid() || el.Type() != v.Type() {
-			return TrickSlice(s) // fall back to []interface{}
+		if el.IsValid() {
+			switch typ {
+			case nil:
+				typ = el.Type()
+				if typ == typeInterface {
+					return TrickSlice(s)
+				}
+			case el.Type():
+			default: // mixed types; fall back to []interface{}
+				return TrickSlice(s)
+			}
 		}
-		slice.Index(i).Set(el)
+	}
+	if typ == nil { // no IsValid (non-nil) values found
+		return TrickSlice(s)
+	}
+	// Now make the slice.
+	sliceTyp := reflect.SliceOf(typ)
+	slice := reflect.MakeSlice(sliceTyp, len(sliceOrElements), len(sliceOrElements))
+	for i := 0; i < len(sliceOrElements); i++ {
+		el := reflect.ValueOf(sliceOrElements[i])
+		if el.IsValid() {
+			slice.Index(i).Set(el)
+		}
 	}
 	return TrickSlice(slice)
 }
