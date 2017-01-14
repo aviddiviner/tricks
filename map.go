@@ -1,8 +1,6 @@
 package tricks
 
-import (
-	"reflect"
-)
+import "reflect"
 
 type TrickMap reflect.Value
 
