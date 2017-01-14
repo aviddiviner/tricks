@@ -68,11 +68,23 @@ func TestSliceOfSlices(t *testing.T) {
 	assert.Equal(t, [][]int{[]int{1, 2}, []int{3, 4}}, ss.Value().([][]int))
 }
 
-// TODO: Get this to pass:
-// func TestSliceOfTrickSlices(t *testing.T) {
-// 	ss := Slice(Slice(1, 2), Slice(3, 4))
-// 	assert.Equal(t, [][]int{[]int{1, 2}, []int{3, 4}}, ss.Value().([][]int))
+func TestSliceOfTrickSlices(t *testing.T) {
+	ss := Slice(Slice(1, 2), Slice(3, 4))
+	ints := ss.Map(func(ts TrickSlice) []int { return ts.Value().([]int) }).Value().([][]int)
+	assert.EqualValues(t, [][]int{[]int{1, 2}, []int{3, 4}}, ints)
+}
+
+// TODO: Think about how to do a .DeepVal (or .Flatten) so we can make these kinds of assertions.
+//
+// ss := Slice(Slice(1, 2), Slice(3, 4))
+// assert.Equal(t, [][]int{[]int{1, 2}, []int{3, 4}}, ss.DeepVal().([][]int))
+//
+// sss := Slice(Slice(Slice(1, 2), Slice(3, 4)), Slice(Slice(5), Slice(6)))
+// exp := [][][]int{
+// 	[][]int{[]int{1, 2}, []int{3, 4}},
+// 	[][]int{[]int{5}, []int{6}},
 // }
+// assert.Equal(t, exp, sss.DeepVal().([][][]int))
 
 func TestSliceOfChans(t *testing.T) {
 	a := make(chan struct{})
