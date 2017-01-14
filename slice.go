@@ -257,3 +257,58 @@ func (ts TrickSlice) Map(fn interface{}) TrickSlice {
 
 	return TrickSlice(out)
 }
+
+// Flatten returns a new slice of values, recursively extracting the elements
+// from any nested slices. This new slice tries to take on the type of the first
+// non-slice element encountered. If the elements are of mixed types, it falls
+// back to []interface{}. nil values are treated as zeroes of the common type.
+func (ts TrickSlice) Flatten() TrickSlice {
+	in := reflect.Value(ts)
+
+	var typ reflect.Type
+	var vals []reflect.Value
+
+	var extract, extractSlice func(reflect.Value)
+	extract = func(el reflect.Value) {
+		if el.Kind() == reflect.Slice {
+			extractSlice(el)
+			return
+		}
+		if el.IsValid() {
+			switch el.Type() {
+			case typeTrickSlice:
+				extractSlice(reflect.Value(el.Interface().(TrickSlice)))
+				return
+			case typeInterface:
+				extract(reflect.ValueOf(el.Interface()))
+				return
+			default:
+				if typ == nil {
+					typ = el.Type()
+				} else if typ != typeInterface && typ != el.Type() {
+					typ = typeInterface // fall back to []interface{}
+				}
+			}
+		}
+		vals = append(vals, el)
+	}
+	extractSlice = func(slice reflect.Value) {
+		// Invariant: slice.Type().Kind() == reflect.Slice
+		for i := 0; i < slice.Len(); i++ {
+			extract(slice.Index(i))
+		}
+	}
+	extractSlice(in)
+
+	if typ == nil { // no IsValid (non-nil) values found
+		typ = typeInterface
+	}
+
+	out := reflect.MakeSlice(reflect.SliceOf(typ), len(vals), len(vals))
+	for i := 0; i < out.Len(); i++ {
+		if vals[i].IsValid() {
+			out.Index(i).Set(vals[i])
+		}
+	}
+	return TrickSlice(out)
+}

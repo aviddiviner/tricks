@@ -67,13 +67,27 @@ func TestSliceInterface(t *testing.T) {
 	assert.Equal(t, expected[2], values[2])
 	assert.Equal(t, expected[3], values[3])
 
-	// These have no common type; we resort to []interface{}.
+	// Variadic. These have no common type; we resort to []interface{}.
 	assert.Equal(t, 5, len(Slice(1, 2, 3.0, 4, "5").Value().([]interface{})))
 	assert.Equal(t, 3, len(Slice(Slice(1, 2, 3), 4, 5).Value().([]interface{})))
 
-	// These share a common type, with some zero values.
+	// Variadic. These share a common type, with some zero values.
 	assert.Equal(t, 4, len(Slice(1, 2, 3, nil).Value().([]int)))
 	assert.Equal(t, 2, len(Slice(nil, struct{ string }{""}).Value().([]struct{ string })))
+
+	// Singular. These type assertions should work and it should come out the same type it went in with.
+
+	// [[[1 2] [3]] [[4 5]]]
+	assert.Equal(t, 2, len(Slice([][][]int{
+		[][]int{[]int{1, 2}, []int{3}},
+		[][]int{[]int{4, 5}},
+	}).Value().([][][]int)))
+
+	// [[[1 2] [3]] [[4 5]]]
+	assert.Equal(t, 2, len(Slice([][][]interface{}{
+		[][]interface{}{[]interface{}{1, 2}, []interface{}{3}},
+		[][]interface{}{[]interface{}{4, 5}},
+	}).Value().([][][]interface{})))
 }
 
 func TestSliceInterfaceSplat(t *testing.T) {
@@ -379,4 +393,41 @@ func TestJoin(t *testing.T) {
 
 	assert.Panics(t, func() { Slice(1, 2, 3).Join("") })
 	assert.Panics(t, func() { Slice('a', 'b', 'c').Join("") }) // TODO: Allow joining []rune.
+}
+
+func TestSliceFlatten(t *testing.T) {
+	five := []int{1, 2, 3, 4, 5}
+	assert.Equal(t, five, Slice(1, 2, 3, 4, 5).Flatten().Value().([]int))
+	assert.Equal(t, five, Slice(Slice(1, 2, 3, 4, 5)).Flatten().Value().([]int))
+	assert.Equal(t, five, Slice(Slice(1, 2), Slice(3, 4, 5)).Flatten().Value().([]int))
+	assert.Equal(t, five, Slice(Slice(Slice(1), Slice(2)), Slice(3, 4, 5)).Flatten().Value().([]int))
+	assert.Equal(t, five, Slice(1, Slice(2), Slice(3, Slice(4, Slice(5)))).Flatten().Value().([]int))
+
+	mixedTypes := Slice(1, Slice(2), Slice(3, Slice(4, Slice("5"))))
+	assert.Equal(t, 5, len(mixedTypes.Flatten().Value().([]interface{})))
+
+	nilValues := Slice(1, Slice(2), Slice(3, Slice(4, Slice(nil))))
+	assert.Equal(t, 5, len(nilValues.Flatten().Value().([]int)))
+
+	assert.Equal(t,
+		[]int{1, 2, 3, 0},
+		Slice([]interface{}{1, 2, 3, nil}).Flatten().Value().([]int))
+	assert.Equal(t,
+		[]interface{}{1, 2, "a", nil},
+		Slice([]interface{}{1, 2, "a", nil}).Flatten().Value().([]interface{}))
+	assert.Equal(t,
+		[]interface{}{nil, nil, nil},
+		Slice([]interface{}{nil, nil, nil}).Flatten().Value().([]interface{}))
+
+	six := []int{1, 2, 3, 4, 5, 6}
+	// [[[1 2] [3]] [[4 5 6]]]
+	assert.Equal(t, six, Slice([][][]int{[][]int{[]int{1, 2}, []int{3}}, [][]int{[]int{4, 5, 6}}}).Flatten().Value().([]int))
+	// [[[1 2] [3]] [[4 5 6]]]
+	assert.Equal(t, six, Slice([][][]interface{}{[][]interface{}{[]interface{}{1, 2}, []interface{}{3}}, [][]interface{}{[]interface{}{4, 5, 6}}}).Flatten().Value().([]int))
+	// [[1 2] 3 [4 5 [6]]]
+	assert.Equal(t, six, Slice([]interface{}{[]interface{}{1, 2}, 3, []interface{}{4, 5, []interface{}{6}}}).Flatten().Value().([]int))
+	// [[1 2] [4 5 [6]]]
+	assert.Equal(t, six, Slice([][]interface{}{[]interface{}{1, 2, 3}, []interface{}{4, 5, []interface{}{6}}}).Flatten().Value().([]int))
+	// [[1 2] 3 [4 5 [6]]]
+	assert.Equal(t, six, Slice([]interface{}{[]int{1, 2}, 3, []interface{}{4, 5, []int{6}}}).Flatten().Value().([]int))
 }
