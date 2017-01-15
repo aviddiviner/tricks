@@ -24,7 +24,8 @@ bearCow := tricks.Slice(animals).
 ```
 
 ```go
-numbers := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1)
+numbers := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1) // now []int
+
 password := numbers.
     Map(func(i int) rune { return rune(i + 104) }).
     Reverse().
@@ -32,6 +33,11 @@ password := numbers.
     Value().([]rune)
 
 string(password) // "kizji"
+
+magic := numbers.
+    Reduce(func(s string, i int) string { return s + string(i+64) + "~" }, nil)
+
+magic.(string) // "A~B~R~A~C~A~D~A~B~R~A~"
 ```
 
 ```go
@@ -47,12 +53,6 @@ schweinehund := tricks.Slice(animals).
     Join("-")           // "pig-dog"
 
 // ¹ No guarantee on ordering in a map.
-```
-
-```go
-magic := numbers.
-    Reduce(func(s string, i int) string { return s + string(i+64) + "~" }, nil)
-    // "A~B~R~A~C~A~D~A~B~R~A~"
 ```
 
 ### TL;DR
@@ -178,23 +178,23 @@ func groupLogsByDate(logs []Timelog, amount, offset int) map[string][]Timelog {
 }
 ```
 
-I was _pleased_, and filled with a warm, fuzzy love for Go. So simple, and clear. _Finish en klaar._
+I was pleased, and filled with a warm, fuzzy love for Go. So simple, and clear. _Finish en klaar._
 
-But yet... I didn't feel complete. I felt like I wanted more. I longed for the excitement of mapping, filtering, sorting, reducing, grouping... maybe all in one long line that does _all of the things_. I wanted a little box of tricks that I could use to just chain everything together and make **✨magic✨** happen.
+But yet... I didn't feel complete. I felt like I needed more. I longed for the excitement of mapping, filtering, sorting, reducing, grouping... all in one long line that does _all of the things_. I wanted a little box of tricks that I could use to just chain everything together and make **✨magic✨** happen.
 
 I mean, all I really had to do was:
 
 1. Group the logs into a map
-1. Get the map's keys
-1. Sort them
-1. Take the last/first few
-1. Return a map with those keys
+2. Get the map's keys
+3. Sort them
+4. Take the last/first few
+5. Return a map of only those keys
 
 That should be like 5 lines of code, right? I mean, it used to be that way... in _Ruby_.
 
 _"No!"_ I told myself. _"This is not Ruby! This is a grown-up language. Used by grown-ups. For big, serious, grown-up things!"_ ... _"Go is this way for a **reason**."_
 
-So I went to bed that night, wrestling with my feelings of inner turmoil. I couldn't quiet that little inner voice. I knew it had to be possible. Go has function literals, right. Go has reflection. This must be possible. There must be a way to have my cake _and_ eat it.
+So I went to bed that night, wrestling with my feelings of inner turmoil. I couldn't quiet that little inner voice. I knew it had to be possible. Go has function literals, right. Go has reflection. This must be doable. There must be a way to have my cake _and_ eat it.
 
 Well... it turns out there was a way, and I found it. And you just found it too. I woke up early the next morning and, after much `reflect`-ing, I emerged with this thing of beauty:
 
@@ -216,12 +216,12 @@ And then promptly rewrote it like this:
 
 ```go
 func groupLogsByDate(logs []Timelog, amount, offset int) map[string][]Timelog {
-    grouped := tricks.Slice(logs).GroupBy(func(t Timelog) string { return t.Start.AsDate() })
-    return grouped.Only(grouped.Keys().Sort().Last(amount + offset).First(amount)).Value().(map[string][]Timelog)
+    gb := tricks.Slice(logs).GroupBy(func(t Timelog) string { return t.Start.AsDate() })
+    return gb.Only(gb.Keys().Sort().Last(amount + offset).First(amount)).Value().(map[string][]Timelog)
 }
 ```
 
-**🤘YEAAA!🤘** Now that's what I'm talking about! I felt the mad rush of power from chaining all those methods and now I was _truly pleased_. I slept well that night, knowing I had done a bad thing, but still, feeling damn good about it.
+**🤘YEAAA!🤘** Now that's what I'm talking about! I felt the mad rush of power from chaining all those methods and now I was truly _pleased_. I slept well that night, knowing I had done a bad thing, but feeling damn good about it.
 
 ## So, should I actually use this?
 
@@ -231,7 +231,7 @@ If you're working on a big project, or if someone else has to maintain your code
 
 ### Seriously though, why should or shouldn't I use this?
 
-To my mind, it's a choice between a declarative vs. imperative style.
+Type safety aside, to my mind, it's a choice between a declarative vs. imperative style.
 
 The declarative style is more _expressive_. We improve readability by simply reducing the code on the page, keeping things short and to the point. This makes it easier to parse what is intended (vs. what is actually being done).
 
