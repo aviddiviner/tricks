@@ -96,9 +96,9 @@ Sort the elements of the slice. Find the smallest or biggest values. As long as 
 
 </details>
 <details>
-<summary>`slice.` `SortBy`</summary>
+<summary>`slice.` `SortBy`, `MinBy`, `MaxBy`</summary>
 
-Sort by some `func(a, b T) bool` that returns whether element `a < b`.
+Sort, or find the smallest / biggest values by some `func(a, b T) bool` that returns whether element `a < b`.
 
 </details>
 <details>

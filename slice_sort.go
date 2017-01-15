@@ -180,8 +180,8 @@ func isValidSortByFunc(funcType, sliceType reflect.Type) bool {
 		funcType.Out(0).Kind() == reflect.Bool
 }
 
-// SortBy sorts the slice values by some by some `func(a, b T) bool` that
-// returns whether element `a < b`.
+// SortBy sorts the slice by some comparison `func(a, b T) bool` that returns
+// whether element `a < b`.
 func (ts TrickSlice) SortBy(fn interface{}) TrickSlice {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
@@ -190,4 +190,28 @@ func (ts TrickSlice) SortBy(fn interface{}) TrickSlice {
 	}
 	sort.Sort(&sortableBy{v, fn})
 	return ts
+}
+
+// MinBy returns the element with the minimum value by some comparison
+// `func(a, b T) bool` that returns whether element `a < b`.
+// If the slice is empty, this method returns the nil interface{}.
+func (ts TrickSlice) MinBy(fn interface{}) interface{} {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !f.IsValid() || !isValidSortByFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.MinBy: invalid function type")
+	}
+	return v.Index(findIndexMin(&sortableBy{v, fn})).Interface()
+}
+
+// MaxBy returns the element with the maximum value by some comparison
+// `func(a, b T) bool` that returns whether element `a < b`.
+// If the slice is empty, this method returns the nil interface{}.
+func (ts TrickSlice) MaxBy(fn interface{}) interface{} {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !f.IsValid() || !isValidSortByFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.MaxBy: invalid function type")
+	}
+	return v.Index(findIndexMax(&sortableBy{v, fn})).Interface()
 }

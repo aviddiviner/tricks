@@ -300,6 +300,19 @@ func TestSortByFunc(t *testing.T) {
 	assert.Equal(t, expected2, animals)
 }
 
+func TestMinByMaxBy(t *testing.T) {
+	animals := []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
+
+	byLen := func(a, b string) bool { return len(a) < len(b) }
+	lexically := func(a, b string) bool { return a < b }
+
+	assert.Equal(t, "dog", Slice(animals).MinBy(byLen).(string))
+	assert.Equal(t, "iguana", Slice(animals).MaxBy(byLen).(string))
+
+	assert.Equal(t, "bear", Slice(animals).MinBy(lexically).(string))
+	assert.Equal(t, "pig", Slice(animals).MaxBy(lexically).(string))
+}
+
 func TestAny(t *testing.T) {
 	creatures := Slice("ant", "bear", "cat")
 	assert.True(t, creatures.Any(func(word string) bool { return len(word) < 4 }))
