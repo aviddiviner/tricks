@@ -7,6 +7,12 @@ func isValidMapFunc(funcType, sliceType reflect.Type) bool {
 		funcType.In(0) == sliceType.Elem()
 }
 
+func isValidReduceFunc(funcType, sliceType reflect.Type) bool {
+	return funcType.NumIn() == 2 && funcType.NumOut() == 1 &&
+		funcType.In(0) == funcType.Out(0) &&
+		funcType.In(1) == sliceType.Elem()
+}
+
 func isValidBoolFunc(funcType, sliceType reflect.Type) bool {
 	return isValidMapFunc(funcType, sliceType) &&
 		funcType.Out(0).Kind() == reflect.Bool
@@ -129,6 +135,32 @@ func (ts TrickSlice) Map(fn interface{}) TrickSlice {
 	}
 
 	return TrickSlice(out)
+}
+
+// Reduce applies the given function to the values of the slice and reduces them
+// down to a single value. fn should be `func(X, T) X`, zero should be type X.
+func (ts TrickSlice) Reduce(fn, zero interface{}) interface{} {
+	// TODO: Improve those docs above.
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !isValidReduceFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.Reduce: invalid function type")
+	}
+	outType := f.Type().Out(0)
+	z := reflect.ValueOf(zero)
+	if !z.IsValid() {
+		z = reflect.Zero(outType)
+	}
+	if z.Type() != outType {
+		panic("tricks: slice.Reduce: invalid zero type")
+	}
+
+	for i := 0; i < v.Len(); i++ {
+		val := v.Index(i)
+		z = f.Call([]reflect.Value{z, val})[0]
+	}
+
+	return z.Interface()
 }
 
 // GroupBy collects the slice values into a map, where the keys are the return

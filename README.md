@@ -63,7 +63,7 @@ Sort the elements of the slice. Find the smallest or biggest values. As long as 
 
 </details>
 <details>
-<summary>`slice.` `Map`, **`Reduce`**</summary>
+<summary>`slice.` `Map`, `Reduce`</summary>
 
 The classics. Apply a `func(T) X` to every element of the slice and create a new slice `[]X` of the results. Reduce all the elements down to a single value by some `func(a, b T) T`.
 
@@ -232,8 +232,6 @@ Interestingly, there are some nice new features coming in Go 1.8 which do things
 
 ## Wishlist
 
-- **`slice.Reduce(func(a, b T) T, zeroVal T) interface{}`**
-- **`slice.SortBy(func(a, b T) bool) TrickSlice`**: Sort elements by some `func(a, b T) bool` that returns whether element `a < b`.
 - `slice.Append(...interface{}) TrickSlice`
 - `slice.Apply(func(T) T) TrickSlice` (like a `slice.Map` in place, same type)
 - `slice.Compact() TrickSlice`
@@ -246,6 +244,7 @@ Interestingly, there are some nice new features coming in Go 1.8 which do things
 - `slice.Partition(func(T) bool) (a, b TrickSlice)`
 - `slice.Product() float64`
 - `slice.Shuffle() TrickSlice`
+- `slice.SortBy(func(a, b T) bool) TrickSlice`: Sort by some `func(a, b T) bool` that returns whether element `a < b`.
 - `slice.Sum() float64`
 - `slice.ToMap() TrickMap`
 - `slice.Uniq() TrickSlice`

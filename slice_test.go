@@ -362,6 +362,39 @@ func TestSliceMap(t *testing.T) {
 	expected := []string{"DOG", "CAT", "BEAR", "COW"}
 	assert.Equal(t, expected, result)
 	assert.NotEqual(t, animals, result)
+
+	ints := Slice().Map(func(i interface{}) int { return 0 }).Value().([]int)
+	assert.Equal(t, []int{}, ints)
+
+	strings := Slice([]int{}).Map(func(i int) string { return "" }).Value().([]string)
+	assert.Equal(t, []string{}, strings)
+
+	assert.Panics(t, func() {
+		t.Log(Slice().Map(func(s string) int { return 0 }).Value().([]int))
+	})
+}
+
+func TestSliceReduce(t *testing.T) {
+	var animals = []string{"dog", "cat", "bear", "cow"}
+
+	joiner := func(a, b string) string { return a + "-" + b }
+	silly := Slice(animals).Reduce(joiner, "monkey").(string)
+	assert.Equal(t, "monkey-dog-cat-bear-cow", silly)
+
+	counter := func(a int, b string) int { return a + len(b) }
+	total := Slice(animals).Reduce(counter, 0).(int)
+	assert.Equal(t, 13, total)
+
+	total = Slice([]string{}).Reduce(counter, 0).(int)
+	assert.Equal(t, 0, total)
+
+	assert.Panics(t, func() {
+		t.Log(Slice(animals).Reduce(counter, "0"))
+	})
+	assert.Panics(t, func() {
+		badFn := func(a int, b string) string { return b }
+		t.Log(Slice(animals).Reduce(badFn, 0))
+	})
 }
 
 func TestMaxAndMin(t *testing.T) {
