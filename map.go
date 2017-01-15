@@ -36,6 +36,11 @@ func (tm TrickMap) Len() int {
 	return reflect.Value(tm).Len()
 }
 
+// IsEmpty returns true if the map has no length, else false.
+func (tm TrickMap) IsEmpty() bool {
+	return tm.Len() == 0
+}
+
 // Keys returns a slice of the map's keys. There is no guarantee on ordering of
 // the keys.
 func (tm TrickMap) Keys() TrickSlice {

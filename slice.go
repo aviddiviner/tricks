@@ -78,6 +78,11 @@ func (ts TrickSlice) Len() int {
 	return reflect.Value(ts).Len()
 }
 
+// IsEmpty returns true if the slice has no length, else false.
+func (ts TrickSlice) IsEmpty() bool {
+	return ts.Len() == 0
+}
+
 // First reslices to only include the first n elements. If n > len(slice), it
 // reslices to include all elements. In both cases, cap() of the new slice is
 // set to equal its length.
@@ -98,6 +103,55 @@ func (ts TrickSlice) Last(n int) TrickSlice {
 		n = v.Len()
 	}
 	return TrickSlice(v.Slice3(v.Len()-n, v.Len(), v.Len()))
+}
+
+// Push appends a single element to the end of the slice.
+func (ts *TrickSlice) Push(element interface{}) {
+	in := reflect.Value(*ts)
+	out := reflect.Append(in, reflect.ValueOf(element))
+	*ts = TrickSlice(out)
+}
+
+// Pop removes the last element from the slice and returns it. If the slice is
+// empty, this method returns a nil value.
+func (ts *TrickSlice) Pop() interface{} {
+	if ts.IsEmpty() {
+		return nil
+	}
+	v := reflect.Value(*ts)
+	*ts = TrickSlice(v.Slice(0, v.Len()-1))
+	return v.Index(v.Len() - 1).Interface()
+}
+
+// Shift removes the first element from the slice and returns it. If the slice
+// is empty, this method returns a nil value.
+func (ts *TrickSlice) Shift() interface{} {
+	if ts.IsEmpty() {
+		return nil
+	}
+	v := reflect.Value(*ts)
+	*ts = TrickSlice(v.Slice(1, v.Len()))
+	return v.Index(0).Interface()
+}
+
+// Unshift prepends a single element to the start of the slice.
+func (ts *TrickSlice) Unshift(element interface{}) {
+	ts.Insert(element, 0)
+}
+
+// Insert inserts an element at the given position in the slice. Slices are
+// indexed from 0.
+func (ts *TrickSlice) Insert(element interface{}, n int) {
+	in := reflect.Value(*ts)
+	if n < 0 || n > in.Len() {
+		panic("tricks: slice.Insert: index out of bounds")
+	}
+	v := reflect.ValueOf(element)
+	out := reflect.Append(in, v) // Grow as required
+	// Shift everything up
+	reflect.Copy(out.Slice(n+1, out.Len()), out.Slice(n, out.Len()-1))
+	out.Index(n).Set(v)
+	*ts = TrickSlice(out)
 }
 
 // Flatten returns a new slice of values, recursively extracting the elements

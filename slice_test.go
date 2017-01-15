@@ -431,3 +431,63 @@ func TestSliceFlatten(t *testing.T) {
 	// [[1 2] 3 [4 5 [6]]]
 	assert.Equal(t, six, Slice([]interface{}{[]int{1, 2}, 3, []interface{}{4, 5, []int{6}}}).Flatten().Value().([]int))
 }
+
+func TestSliceIsEmpty(t *testing.T) {
+	assert.True(t, Slice().IsEmpty())
+	assert.True(t, Slice([]int{}).IsEmpty())
+
+	assert.False(t, Slice(1).IsEmpty())
+	assert.False(t, Slice([]int{1}).IsEmpty())
+}
+
+func TestSlicePushPop(t *testing.T) {
+	ints := Slice(1, 1)
+	ints.Push(2)
+	assert.Equal(t, 3, ints.Len())
+	ints.Push(3)
+	assert.Equal(t, []int{1, 1, 2, 3}, ints.Value().([]int))
+
+	abc := Slice([]rune("abc"))
+	assert.Equal(t, 3, abc.Len())
+	assert.Equal(t, 'c', abc.Pop().(rune))
+	assert.Equal(t, 'b', abc.Pop().(rune))
+	assert.Equal(t, 'a', abc.Pop().(rune))
+	assert.True(t, abc.IsEmpty())
+	assert.True(t, abc.Pop() == nil)
+}
+
+func TestSliceShiftUnshift(t *testing.T) {
+	ints := Slice(1, 1)
+	ints.Unshift(2)
+	assert.Equal(t, 3, ints.Len())
+	ints.Unshift(3)
+	assert.Equal(t, []int{3, 2, 1, 1}, ints.Value().([]int))
+
+	empty := Slice()
+	empty.Unshift("a")
+	assert.Equal(t, 1, empty.Len())
+
+	abc := Slice([]rune("abc"))
+	assert.Equal(t, 3, abc.Len())
+	assert.Equal(t, 'a', abc.Shift().(rune))
+	assert.Equal(t, 'b', abc.Shift().(rune))
+	assert.Equal(t, 'c', abc.Shift().(rune))
+	assert.True(t, abc.IsEmpty())
+	assert.True(t, abc.Shift() == nil)
+}
+
+func TestSliceInsert(t *testing.T) {
+	runes := Slice('a', 'b')
+	assert.Panics(t, func() { runes.Insert('z', -1) })
+	assert.Panics(t, func() { runes.Insert('z', 3) })
+	runes.Insert('c', 2)
+	assert.Equal(t, []rune{'a', 'b', 'c'}, runes.Value().([]rune))
+	runes.Insert('d', 0)
+	assert.Equal(t, []rune{'d', 'a', 'b', 'c'}, runes.Value().([]rune))
+	runes.Insert('e', 2)
+	assert.Equal(t, []rune{'d', 'a', 'e', 'b', 'c'}, runes.Value().([]rune))
+
+	empty := Slice()
+	empty.Insert('a', 0)
+	assert.Equal(t, 1, empty.Len())
+}

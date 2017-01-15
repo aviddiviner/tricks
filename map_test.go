@@ -49,6 +49,11 @@ func TestMapLen(t *testing.T) {
 	assert.Equal(t, 0, Map(map[int]bool{}).Len())
 }
 
+func TestMapIsEmpty(t *testing.T) {
+	assert.True(t, Map(map[int]bool{}).IsEmpty())
+	assert.False(t, Map(map[int]bool{1: true}).IsEmpty())
+}
+
 func TestMapNil(t *testing.T) {
 	// These type assertions should all work.
 	assert.Equal(t, 0, len(Map(map[interface{}]interface{}{}).Value().(map[interface{}]interface{})))
