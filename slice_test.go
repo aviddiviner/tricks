@@ -491,3 +491,20 @@ func TestSliceInsert(t *testing.T) {
 	empty.Insert('a', 0)
 	assert.Equal(t, 1, empty.Len())
 }
+
+func TestSliceDelete(t *testing.T) {
+	runes := Slice('a', 'b')
+	assert.Panics(t, func() { runes.Delete(-1) })
+	assert.Panics(t, func() { runes.Delete(3) })
+	runes.Delete(0)
+	assert.Equal(t, []rune{'b'}, runes.Value().([]rune))
+	runes.Insert('d', 1)
+	runes.Insert('e', 1)
+	runes.Insert('a', 1)
+	runes.Delete(2)
+	assert.Equal(t, []rune{'b', 'a', 'd'}, runes.Value().([]rune))
+	runes.Delete(0)
+	runes.Delete(0)
+	runes.Delete(0)
+	assert.Panics(t, func() { runes.Delete(0) })
+}

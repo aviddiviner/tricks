@@ -136,8 +136,10 @@ func (ts *TrickSlice) Shift() interface{} {
 
 // Unshift prepends a single element to the start of the slice.
 func (ts *TrickSlice) Unshift(element interface{}) {
-	ts.Insert(element, 0)
+	ts.Insert(element, 0) // will never panic
 }
+
+// TODO: Refactor to reuse code Push/Unshift -> Insert, Pop/Shift -> Delete
 
 // Insert inserts an element at the given position in the slice. Slices are
 // indexed from 0.
@@ -152,6 +154,25 @@ func (ts *TrickSlice) Insert(element interface{}, n int) {
 	reflect.Copy(out.Slice(n+1, out.Len()), out.Slice(n, out.Len()-1))
 	out.Index(n).Set(v)
 	*ts = TrickSlice(out)
+}
+
+// Delete removes an element at the given position in the slice. Note that this
+// does an internal copy to preserve the order of elements in the slice. Slices
+// are indexed from 0.
+func (ts *TrickSlice) Delete(n int) {
+	v := reflect.Value(*ts)
+	if n < 0 || n >= v.Len() {
+		panic("tricks: slice.Delete: index out of bounds")
+	}
+	if n == 0 { // Special case, no copy needed.
+		ts.Shift()
+		return
+	}
+	// TODO: Copy from the shorter half and reslice from either end.
+	reflect.Copy(v.Slice(n, v.Len()-1), v.Slice(n+1, v.Len()))
+	last := v.Index(v.Len() - 1)
+	last.Set(reflect.Zero(last.Type()))
+	*ts = TrickSlice(v.Slice(0, v.Len()-1))
 }
 
 // Flatten returns a new slice of values, recursively extracting the elements
