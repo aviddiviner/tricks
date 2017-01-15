@@ -24,6 +24,17 @@ bearCow := tricks.Slice(animals).
 ```
 
 ```go
+numbers := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1)
+password := numbers.
+    Map(func(i int) rune { return rune(i + 104) }).
+    Reverse().
+    Last(5).
+    Value().([]rune)
+
+string(password) // "kizji"
+```
+
+```go
 byLength := func(s string) int { return len(s) }
 schweinehund := tricks.Slice(animals).
     GroupBy(byLength).  // map[4:[bear bull] 6:[iguana] 3:[dog cat cow pig]] ¹
@@ -39,11 +50,9 @@ schweinehund := tricks.Slice(animals).
 ```
 
 ```go
-runes := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1).
-    Map(func(i int) rune { return rune(i + 96) }).
-    Value().([]rune)
-
-string(runes) // "abracadabra"
+magic := numbers.
+    Reduce(func(s string, i int) string { return s + string(i+64) + "~" }, nil)
+    // "A~B~R~A~C~A~D~A~B~R~A~"
 ```
 
 ### TL;DR

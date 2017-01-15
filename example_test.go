@@ -19,6 +19,18 @@ func ExampleSlice() {
 	// Output: [Bear Cow]
 }
 
+func ExampleSlice_runes() {
+	numbers := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1)
+	password := numbers.
+		Map(func(i int) rune { return rune(i + 104) }).
+		Reverse().
+		Last(5).
+		Value().([]rune)
+
+	fmt.Println(string(password))
+	// Output: kizji
+}
+
 func ExampleSlice_groupBy() {
 	animals := []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
 	byLength := func(s string) int { return len(s) }
@@ -39,17 +51,11 @@ func ExampleSlice_groupBy() {
 	// Output: pig-dog
 }
 
-func ExampleSlice_strings() {
-	password := tricks.Slice([]rune("abracadabra")).Reverse().Value().([]rune)
-	fmt.Println(string(password))
-	// Output: arbadacarba
-}
-
 func ExampleSlice_variadic() {
-	runes := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1).
-		Map(func(i int) rune { return rune(i + 96) }).
-		Value().([]rune)
+	numbers := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1)
+	magic := numbers.
+		Reduce(func(s string, i int) string { return s + string(i+64) + "~" }, nil)
 
-	fmt.Println(string(runes))
-	// Output: abracadabra
+	fmt.Println(magic)
+	// Output: A~B~R~A~C~A~D~A~B~R~A~
 }
