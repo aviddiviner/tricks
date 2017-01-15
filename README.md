@@ -87,12 +87,6 @@ Reslice to only take the first or last `n` elements.
 
 </details>
 <details>
-<summary>`slice.` **`SortBy`**</summary>
-
-Sort elements by some `func(a, b T) bool` that returns whether element `a < b`.
-
-</details>
-<details>
 <summary>`slice.` `GroupBy`</summary>
 
 Apply a `func(V) K` to every element of the slice and group them into a map (`map[K][]V`) of the results.
@@ -239,13 +233,16 @@ Interestingly, there are some nice new features coming in Go 1.8 which do things
 ## Wishlist
 
 - **`slice.Reduce(func(a, b T) T, zeroVal T) interface{}`**
-- **`slice.SortBy(func(a, b T) bool) TrickSlice`**
+- **`slice.SortBy(func(a, b T) bool) TrickSlice`**: Sort elements by some `func(a, b T) bool` that returns whether element `a < b`.
 - `slice.Append(...interface{}) TrickSlice`
 - `slice.Apply(func(T) T) TrickSlice` (like a `slice.Map` in place, same type)
 - `slice.Compact() TrickSlice`
+- `slice.Cut(i, j int)`
 - `slice.DeepCopy() TrickSlice`
 - `slice.Drop` / `DeleteIf` `(func(T) bool) TrickSlice`
+- `slice.Expand(i, j int)`
 - `slice.Filter` / `Choose` / `Select` `(func(T) bool) TrickSlice` (no reallocating)
+- `slice.Insert(n, ...interface{})` (insert any number of elements)
 - `slice.Partition(func(T) bool) (a, b TrickSlice)`
 - `slice.Product() float64`
 - `slice.Shuffle() TrickSlice`
