@@ -154,3 +154,40 @@ func (ts TrickSlice) Min() interface{} {
 	}
 	return v.Index(findIndexMin(getSortable("slice.Min", v))).Interface()
 }
+
+type sortableBy struct {
+	val    reflect.Value
+	sortFn interface{}
+}
+
+func (s *sortableBy) Len() int {
+	return s.val.Len()
+}
+
+func (s *sortableBy) Swap(i, j int) {
+	swapValue(s.val, i, j)
+}
+
+func (s *sortableBy) Less(i, j int) bool {
+	fn := reflect.ValueOf(s.sortFn)
+	return fn.Call([]reflect.Value{s.val.Index(i), s.val.Index(j)})[0].Bool()
+}
+
+func isValidSortByFunc(funcType, sliceType reflect.Type) bool {
+	return funcType.NumIn() == 2 && funcType.NumOut() == 1 &&
+		funcType.In(0) == sliceType.Elem() &&
+		funcType.In(1) == sliceType.Elem() &&
+		funcType.Out(0).Kind() == reflect.Bool
+}
+
+// SortBy sorts the slice values by some by some `func(a, b T) bool` that
+// returns whether element `a < b`.
+func (ts TrickSlice) SortBy(fn interface{}) TrickSlice {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !f.IsValid() || !isValidSortByFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.SortBy: invalid function type")
+	}
+	sort.Sort(&sortableBy{v, fn})
+	return ts
+}

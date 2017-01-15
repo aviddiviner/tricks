@@ -66,12 +66,6 @@ These take a `func(T) bool` and tell you whether the elements in the slice: all 
 
 </details>
 <details>
-<summary>`slice.` `Sort`, `Min`, `Max`</summary>
-
-Sort the elements of the slice. Find the smallest or biggest values. As long as the slice is a normal type (`[]string`, `[]int`, etc.) or it implements `sort.Interface`, these all work.
-
-</details>
-<details>
 <summary>`slice.` `Map`, `Reduce`</summary>
 
 The classics. Apply a `func(T) X` to every element of the slice and create a new slice `[]X` of the results. Reduce all the elements down to a single value by some `func(a, b T) T`.
@@ -93,6 +87,18 @@ Add or remove an element at any position in the slice.
 <summary>`slice.` `First`, `Last`</summary>
 
 Reslice to only take the first or last `n` elements.
+
+</details>
+<details>
+<summary>`slice.` `Sort`, `Min`, `Max`</summary>
+
+Sort the elements of the slice. Find the smallest or biggest values. As long as the slice is a normal type (`[]string`, `[]int`, etc.) or it implements `sort.Interface`, these all work.
+
+</details>
+<details>
+<summary>`slice.` `SortBy`</summary>
+
+Sort by some `func(a, b T) bool` that returns whether element `a < b`.
 
 </details>
 <details>
@@ -252,8 +258,8 @@ Interestingly, there are some nice new features coming in Go 1.8 which do things
 - `slice.Insert(n, ...interface{})` (insert any number of elements)
 - `slice.Partition(func(T) bool) (a, b TrickSlice)`
 - `slice.Product() float64`
+- `slice.Sample(n int) TrickSlice`
 - `slice.Shuffle() TrickSlice`
-- `slice.SortBy(func(a, b T) bool) TrickSlice`: Sort by some `func(a, b T) bool` that returns whether element `a < b`.
 - `slice.Sum() float64`
 - `slice.ToMap() TrickMap`
 - `slice.Uniq() TrickSlice`

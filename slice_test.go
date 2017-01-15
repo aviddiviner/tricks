@@ -286,6 +286,20 @@ func TestSortUnsortableTypes(t *testing.T) {
 	assert.Equal(t, []int{1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89}, []int(unsortable))
 }
 
+func TestSortByFunc(t *testing.T) {
+	animals := []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
+	byLen := func(a, b string) bool { return len(a) < len(b) }
+	sorted := Slice(animals).SortBy(byLen)
+	expected1 := []string{"dog", "cat", "cow", "pig", "bear", "bull", "iguana"}
+	assert.Equal(t, expected1, animals)
+	assert.Equal(t, sorted.Value().([]string), animals)
+
+	lexically := func(a, b string) bool { return a < b }
+	sorted.SortBy(lexically)
+	expected2 := []string{"bear", "bull", "cat", "cow", "dog", "iguana", "pig"}
+	assert.Equal(t, expected2, animals)
+}
+
 func TestAny(t *testing.T) {
 	creatures := Slice("ant", "bear", "cat")
 	assert.True(t, creatures.Any(func(word string) bool { return len(word) < 4 }))

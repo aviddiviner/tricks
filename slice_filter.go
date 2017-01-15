@@ -23,7 +23,7 @@ func isValidBoolFunc(funcType, sliceType reflect.Type) bool {
 func (ts TrickSlice) Any(fn interface{}) bool {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidBoolFunc(f.Type(), v.Type()) {
+	if !f.IsValid() || !isValidBoolFunc(f.Type(), v.Type()) {
 		panic("tricks: slice.Any: invalid function type")
 	}
 
@@ -41,7 +41,7 @@ func (ts TrickSlice) Any(fn interface{}) bool {
 func (ts TrickSlice) All(fn interface{}) bool {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidBoolFunc(f.Type(), v.Type()) {
+	if !f.IsValid() || !isValidBoolFunc(f.Type(), v.Type()) {
 		panic("tricks: slice.All: invalid function type")
 	}
 
@@ -59,7 +59,7 @@ func (ts TrickSlice) All(fn interface{}) bool {
 func (ts TrickSlice) None(fn interface{}) bool {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidBoolFunc(f.Type(), v.Type()) {
+	if !f.IsValid() || !isValidBoolFunc(f.Type(), v.Type()) {
 		panic("tricks: slice.None: invalid function type")
 	}
 
@@ -77,7 +77,7 @@ func (ts TrickSlice) None(fn interface{}) bool {
 func (ts TrickSlice) One(fn interface{}) bool {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidBoolFunc(f.Type(), v.Type()) {
+	if !f.IsValid() || !isValidBoolFunc(f.Type(), v.Type()) {
 		panic("tricks: slice.One: invalid function type")
 	}
 
@@ -99,7 +99,7 @@ func (ts TrickSlice) One(fn interface{}) bool {
 func (ts TrickSlice) Many(fn interface{}) bool {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidBoolFunc(f.Type(), v.Type()) {
+	if !f.IsValid() || !isValidBoolFunc(f.Type(), v.Type()) {
 		panic("tricks: slice.Many: invalid function type")
 	}
 
@@ -121,7 +121,7 @@ func (ts TrickSlice) Many(fn interface{}) bool {
 func (ts TrickSlice) Map(fn interface{}) TrickSlice {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidMapFunc(f.Type(), v.Type()) {
+	if !f.IsValid() || !isValidMapFunc(f.Type(), v.Type()) {
 		panic("tricks: slice.Map: invalid function type")
 	}
 	outType := f.Type().Out(0)
@@ -143,7 +143,7 @@ func (ts TrickSlice) Reduce(fn, zero interface{}) interface{} {
 	// TODO: Improve those docs above.
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidReduceFunc(f.Type(), v.Type()) {
+	if !f.IsValid() || !isValidReduceFunc(f.Type(), v.Type()) {
 		panic("tricks: slice.Reduce: invalid function type")
 	}
 	outType := f.Type().Out(0)
@@ -169,7 +169,7 @@ func (ts TrickSlice) Reduce(fn, zero interface{}) interface{} {
 func (ts TrickSlice) GroupBy(fn interface{}) TrickMap {
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)
-	if !isValidMapFunc(f.Type(), v.Type()) {
+	if !f.IsValid() || !isValidMapFunc(f.Type(), v.Type()) {
 		panic("tricks: slice.GroupBy: invalid function type")
 	}
 	keyType := f.Type().Out(0)
