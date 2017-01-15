@@ -48,40 +48,85 @@ string(runes) // "abracadabra"
 
 ### TL;DR
 
+_(Click these to expand.)_
+
 <details>
-<summary>`slice.` `All`, `Any`, `Many`, `One`, `None`</summary>These take a `func(T) bool` and tell you whether the elements in the slice: all return true, any return true, more than one returns true, exactly one returns true, or none return true.
+<summary>`slice.` `All`, `Any`, `Many`, `One`, `None`</summary>
 
-</details><details>
-<summary>`slice.` `Sort`, `Min`, `Max`</summary>Sort the elements of the slice. Find the smallest or biggest values. As long as the slice is a normal type (`[]string`, `[]int`, etc.) or it implements `sort.Interface`, these all work.
+These take a `func(T) bool` and tell you whether the elements in the slice: all return true, any return true, more than one returns true, exactly one returns true, or none return true.
 
-</details><details>
-<summary>`slice.` `Map`, **`Reduce`**</summary>The classics. Apply a `func(T) X` to every element of the slice and create a new slice `[]X` of the results. Reduce all the elements down to a single value by some `func(a, b T) T`.
+</details>
+<details>
+<summary>`slice.` `Sort`, `Min`, `Max`</summary>
 
-</details><details>
-<summary>`slice.` `First`, `Last`</summary>Reslice to only take the first or last `n` elements.
+Sort the elements of the slice. Find the smallest or biggest values. As long as the slice is a normal type (`[]string`, `[]int`, etc.) or it implements `sort.Interface`, these all work.
 
-</details><details>
-<summary>`slice.` **`SortBy`**</summary>Sort elements by some `func(a, b T) bool` that returns whether element `a < b`.
+</details>
+<details>
+<summary>`slice.` `Map`, **`Reduce`**</summary>
 
-</details><details>
-<summary>`slice.` `GroupBy`</summary>Apply a `func(V) K` to every element of the slice and group them into a map (`map[K][]V`) of the results.
+The classics. Apply a `func(T) X` to every element of the slice and create a new slice `[]X` of the results. Reduce all the elements down to a single value by some `func(a, b T) T`.
 
-</details><details>
-<summary>`slice.` `Reverse`, `Flatten`, `Join`</summary>Reverse the order of elements in the slice. Flatten a nested slice of slices into a one-dimensional slice. Join a slice of strings into a single string.
+</details>
+<details>
+<summary>`slice.` `Push`, `Pop`, `Shift`, `Unshift`</summary>
 
-</details><details>
-<summary>`slice.` `Len`, `Copy`, `Value`</summary>Get the number of elements in the slice. Copy the contents to a new underlying slice. Get the underlying slice value.
+Append or remove an element from the start or end of the slice.
+
+</details>
+<details>
+<summary>`slice.` `Insert`, `Delete`</summary>
+
+Add or remove an element at any position in the slice.
+
+</details>
+<details>
+<summary>`slice.` `First`, `Last`</summary>
+
+Reslice to only take the first or last `n` elements.
+
+</details>
+<details>
+<summary>`slice.` **`SortBy`**</summary>
+
+Sort elements by some `func(a, b T) bool` that returns whether element `a < b`.
+
+</details>
+<details>
+<summary>`slice.` `GroupBy`</summary>
+
+Apply a `func(V) K` to every element of the slice and group them into a map (`map[K][]V`) of the results.
+
+</details>
+<details>
+<summary>`slice.` `Reverse`, `Flatten`, `Join`</summary>
+
+Reverse the order of elements in the slice. Flatten a nested slice of slices into a one-dimensional slice. Join a slice of strings into a single string.
+
+</details>
+<details>
+<summary>`slice.` `Copy`, `Value`, `Len`, `IsEmpty`</summary>
+
+Copy the contents to a new underlying slice. Get the underlying slice value. Get the number of elements in the slice. Check if the slice is empty.
 
 </details>
 
 <details>
-<summary>`map.` `Keys`, `Values`</summary>Get a slice of only the key or values of the map.
+<summary>`map.` `Keys`, `Values`</summary>
 
-</details><details>
-<summary>`map.` `Only`</summary>Get a map containing only the entries matching some list of keys.
+Get a slice of only the key or values of the map.
 
-</details><details>
-<summary>`map.` `Len`, `Copy`, `Value`</summary>Get the number of elements in the map. Copy the contents to a new underlying map. Get the underlying map value.
+</details>
+<details>
+<summary>`map.` `Only`</summary>
+
+Get a map containing only the entries matching some list of keys.
+
+</details>
+<details>
+<summary>`map.` `Copy`, `Value`, `Len`, `IsEmpty`</summary>
+
+Copy the contents to a new underlying map. Get the underlying map value. Get the number of elements in the map. Check if the map is empty.
 
 </details>
 
@@ -201,22 +246,16 @@ Interestingly, there are some nice new features coming in Go 1.8 which do things
 - `slice.DeepCopy() TrickSlice`
 - `slice.Drop` / `DeleteIf` `(func(T) bool) TrickSlice`
 - `slice.Filter` / `Choose` / `Select` `(func(T) bool) TrickSlice` (no reallocating)
-- `slice.IsEmpty() bool`
 - `slice.Partition(func(T) bool) (a, b TrickSlice)`
-- `slice.Pop() interface{}`
 - `slice.Product() float64`
-- `slice.Push(interface{}) TrickSlice`
-- `slice.Shift() interface{}`
 - `slice.Shuffle() TrickSlice`
 - `slice.Sum() float64`
 - `slice.ToMap() TrickMap`
 - `slice.Uniq() TrickSlice`
-- `slice.Unshift(interface{}) TrickSlice`
 - `slice.Zip(...interface{}) TrickSlice`
 - `map.DeepCopy() TrickMap`
 - `map.Drop(func(K, V) bool) TrickMap`
 - `map.Filter` / `Choose` / `Select` `(func(K, V) bool) TrickMap`
-- `map.IsEmpty() bool`
 - `map.Merge(map[K]V)`
 - Lazy evaluation / enumerators
 - https://github.com/golang/go/wiki/SliceTricks `Cut` / `Delete` / `Insert`
