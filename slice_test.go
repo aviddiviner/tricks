@@ -381,6 +381,26 @@ func TestGroupBy(t *testing.T) {
 	assert.Equal(t, expected, grouped)
 }
 
+func TestSliceFilter(t *testing.T) {
+	var animals = []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
+
+	result := Slice(animals).
+		Filter(func(s string) bool { return len(s) > 3 }).
+		Value().([]string)
+
+	expected := []string{"bear", "bull", "iguana"}
+	assert.Equal(t, expected, result)
+	assert.NotEqual(t, animals, result)
+
+	result = Slice(animals).
+		Filter(func(s string) bool { return len(s) < 3 }).
+		Value().([]string)
+
+	expected = []string{}
+	assert.Equal(t, expected, result)
+	assert.NotEqual(t, animals, result)
+}
+
 func TestSliceMap(t *testing.T) {
 	var animals = []string{"dog", "cat", "bear", "cow"}
 

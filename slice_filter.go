@@ -116,6 +116,27 @@ func (ts TrickSlice) Many(fn interface{}) bool {
 	return false
 }
 
+// Filter returns a new slice, choosing only the elements for which the given
+// function returns true.
+func (ts TrickSlice) Filter(fn interface{}) TrickSlice {
+	v := reflect.Value(ts)
+	f := reflect.ValueOf(fn)
+	if !f.IsValid() || !isValidBoolFunc(f.Type(), v.Type()) {
+		panic("tricks: slice.Filter: invalid function type")
+	}
+	typ := v.Type()
+
+	out := reflect.MakeSlice(typ, 0, 0)
+	for i := 0; i < v.Len(); i++ {
+		val := v.Index(i)
+		if f.Call([]reflect.Value{val})[0].Bool() {
+			out = reflect.Append(out, val)
+		}
+	}
+
+	return TrickSlice(out)
+}
+
 // Map applies the given function to each element of the slice and stores the
 // result to a new slice. The cap() of the new slice is set to equal its length.
 func (ts TrickSlice) Map(fn interface{}) TrickSlice {
@@ -173,7 +194,7 @@ func (ts TrickSlice) GroupBy(fn interface{}) TrickMap {
 		panic("tricks: slice.GroupBy: invalid function type")
 	}
 	keyType := f.Type().Out(0)
-	valType := reflect.SliceOf(v.Type().Elem())
+	valType := v.Type()
 	mapType := reflect.MapOf(keyType, valType)
 
 	out := reflect.MakeMap(mapType)

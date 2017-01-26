@@ -72,6 +72,12 @@ The classics. Apply a `func(T) X` to every element of the slice and create a new
 
 </details>
 <details>
+<summary>`slice.` `Filter`</summary>
+
+Choose only the elements for which some `func(T) bool` returns true.
+
+</details>
+<details>
 <summary>`slice.` `Push`, `Pop`, `Shift`, `Unshift`</summary>
 
 Append or remove an element from the start or end of the slice.
@@ -254,7 +260,7 @@ Interestingly, there are some nice new features coming in Go 1.8 which do things
 - `slice.DeepCopy() TrickSlice`
 - `slice.Drop` / `DeleteIf` `(func(T) bool) TrickSlice`
 - `slice.Expand(i, j int)`
-- `slice.Filter` / `Choose` / `Select` `(func(T) bool) TrickSlice` (no reallocating)
+- `slice.Select` / `Reject` `(func(T) bool) TrickSlice` (no reallocating?)
 - `slice.Insert(n, ...interface{})` (insert any number of elements)
 - `slice.Partition(func(T) bool) (a, b TrickSlice)`
 - `slice.Product() float64`
@@ -269,4 +275,5 @@ Interestingly, there are some nice new features coming in Go 1.8 which do things
 - `map.Filter` / `Choose` / `Select` `(func(K, V) bool) TrickMap`
 - `map.Merge(map[K]V)`
 - Lazy evaluation / enumerators
+- Combinatorics (choose, permute)
 - https://github.com/golang/go/wiki/SliceTricks `Cut` / `Delete` / `Insert`
