@@ -160,7 +160,7 @@ func (ts TrickSlice) Map(fn interface{}) TrickSlice {
 
 // Reduce applies the given function to the values of the slice and reduces them
 // down to a single value. fn should be `func(X, T) X`, zero should be type X.
-func (ts TrickSlice) Reduce(fn, zero interface{}) interface{} {
+func (ts TrickSlice) Reduce(zero, fn interface{}) interface{} {
 	// TODO: Improve those docs above.
 	v := reflect.Value(ts)
 	f := reflect.ValueOf(fn)

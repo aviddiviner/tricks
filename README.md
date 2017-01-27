@@ -25,19 +25,10 @@ bearCow := tricks.Slice(animals).
 
 ```go
 numbers := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1) // now []int
-
-password := numbers.
-    Map(func(i int) rune { return rune(i + 104) }).
-    Reverse().
-    Last(5).
-    Value().([]rune)
-
-string(password) // "kizji"
-
 magic := numbers.
-    Reduce(func(s string, i int) string { return s + string(i+64) + "~" }, nil)
+    Reduce("~", func(s string, i int) string { return s + string(i+64) + "~" })
 
-magic.(string) // "A~B~R~A~C~A~D~A~B~R~A~"
+magic.(string) // "~A~B~R~A~C~A~D~A~B~R~A~"
 ```
 
 ```go

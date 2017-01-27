@@ -52,10 +52,10 @@ func ExampleSlice_groupBy() {
 }
 
 func ExampleSlice_variadic() {
-	numbers := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1)
+	numbers := tricks.Slice(1, 2, 18, 1, 3, 1, 4, 1, 2, 18, 1) // now []int
 	magic := numbers.
-		Reduce(func(s string, i int) string { return s + string(i+64) + "~" }, nil)
+		Reduce("~", func(s string, i int) string { return s + string(i+64) + "~" })
 
 	fmt.Println(magic)
-	// Output: A~B~R~A~C~A~D~A~B~R~A~
+	// Output: ~A~B~R~A~C~A~D~A~B~R~A~
 }

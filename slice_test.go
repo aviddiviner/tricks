@@ -425,22 +425,22 @@ func TestSliceReduce(t *testing.T) {
 	var animals = []string{"dog", "cat", "bear", "cow"}
 
 	joiner := func(a, b string) string { return a + "-" + b }
-	silly := Slice(animals).Reduce(joiner, "monkey").(string)
+	silly := Slice(animals).Reduce("monkey", joiner).(string)
 	assert.Equal(t, "monkey-dog-cat-bear-cow", silly)
 
 	counter := func(a int, b string) int { return a + len(b) }
-	total := Slice(animals).Reduce(counter, 0).(int)
+	total := Slice(animals).Reduce(0, counter).(int)
 	assert.Equal(t, 13, total)
 
-	total = Slice([]string{}).Reduce(counter, 0).(int)
+	total = Slice([]string{}).Reduce(0, counter).(int)
 	assert.Equal(t, 0, total)
 
 	assert.Panics(t, func() {
-		t.Log(Slice(animals).Reduce(counter, "0"))
+		t.Log(Slice(animals).Reduce("0", counter))
 	})
 	assert.Panics(t, func() {
 		badFn := func(a int, b string) string { return b }
-		t.Log(Slice(animals).Reduce(badFn, 0))
+		t.Log(Slice(animals).Reduce(0, badFn))
 	})
 }
 
