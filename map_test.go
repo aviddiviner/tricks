@@ -101,3 +101,20 @@ func TestMapOnly(t *testing.T) {
 	assert.Panics(t, func() { Map(alphabet).Only(nil) })
 	assert.Panics(t, func() { Map(alphabet).Only(1) })
 }
+
+func TestMapHasKeys(t *testing.T) {
+	var alphabet = map[string]string{
+		"A": "Apple",
+		"B": "Ball",
+		"C": "Cat",
+		"D": "Doll",
+		"E": "Egg",
+		"F": "Frog",
+	}
+
+	assert.True(t, Map(alphabet).HasKeys("A", "B"))
+	assert.True(t, Map(alphabet).HasKeys("A", "B", "C", "D", "E", "F"))
+	assert.True(t, Map(alphabet).HasKeys("F"))
+	assert.False(t, Map(alphabet).HasKeys("f"))
+	assert.False(t, Map(alphabet).HasKeys("F", "G"))
+}

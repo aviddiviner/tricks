@@ -92,3 +92,25 @@ func (tm TrickMap) Only(keys ...interface{}) TrickMap {
 
 	return TrickMap(out)
 }
+
+// HasKeys returns true if the map has all of the given keys, else false.
+// HasKeys accepts the same arguments as Slice()
+func (tm TrickMap) HasKeys(keys ...interface{}) bool {
+	v := reflect.Value(tm)
+	k := reflect.Value(Slice(keys...))
+
+	keyType := v.Type().Key()
+
+	for i := 0; i < k.Len(); i++ {
+		key := k.Index(i)
+		if !key.Type().AssignableTo(keyType) {
+			panic("tricks: map.HasKeys: key doesn't match map's key type")
+		}
+		val := v.MapIndex(key)
+		if !val.IsValid() {
+			return false
+		}
+	}
+
+	return true
+}
