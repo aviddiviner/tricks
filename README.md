@@ -2,17 +2,13 @@
 
 An entirely unidiomatic approach to working with maps and slices in Go.
 
-> _This is currently a work in progress (for probably the next few weeks). Once I'm happy with the API, I'll remove this notice. Until then, expect things to change. I'm just putting it up on GitHub so long, because `git push` is very satisfying and it makes me feel good._
->
-> _According to [this XKCD comic](https://xkcd.com/1205/), I can probably work on this for about 4 weeks, before I'm spending more time than it might ever save me._
-
 ## What is this?
 
-Originally started as an exercise in teaching myself Go reflection, I got a little carried away... and created something _awesome_. This goes out to all those Gophers with a yearning in their hearts for the good old days of chaining long strings of methods together (à la Ruby).
+Originally started as an exercise in teaching myself Go reflection, I got a little carried away and created something... interesting. A fast way of working with maps and slices by simply chaining methods together, à la Ruby.
 
 ### Show me examples!
 
-Sure. The best place to start is probably [the docs](https://godoc.org/github.com/aviddiviner/tricks), but here's some sexy code to admire:
+Sure. The best place to start is probably [the docs](https://godoc.org/github.com/aviddiviner/tricks), but here's some pretty code to admire:
 
 ```go
 animals := []string{"dog", "cat", "bear", "cow", "bull", "pig", "iguana"}
@@ -33,7 +29,7 @@ magic.(string) // "~A~B~R~A~C~A~D~A~B~R~A~"
 
 ```go
 byLength := func(s string) int { return len(s) }
-schweinehund := tricks.Slice(animals).
+pigDog := tricks.Slice(animals).
     GroupBy(byLength).  // map[4:[bear bull] 6:[iguana] 3:[dog cat cow pig]] ¹
     Only(3, 4).         // map[4:[bear bull] 3:[dog cat cow pig]] ¹
     Values().           // [[dog cat cow pig] [bear bull]] ¹
@@ -46,91 +42,97 @@ schweinehund := tricks.Slice(animals).
 // ¹ No guarantee on ordering in a map.
 ```
 
-### TL;DR
+### TL;DR Docs
 
 _(Click these to expand.)_
 
 <details>
-<summary>`slice.` `All`, `Any`, `Many`, `One`, `None`</summary>
+<summary>slice.{All, Any, Many, One, None}</summary>
 
 These take a `func(T) bool` and tell you whether the elements in the slice: all return true, any return true, more than one returns true, exactly one returns true, or none return true.
 
 </details>
 <details>
-<summary>`slice.` `Map`, `Reduce`</summary>
+<summary>slice.{Map, Reduce}</summary>
 
 The classics. Apply a `func(T) X` to every element of the slice and create a new slice `[]X` of the results. Reduce all the elements down to a single value by some `func(a, b T) T`.
 
 </details>
 <details>
-<summary>`slice.` `Filter`</summary>
+<summary>slice.Filter</summary>
 
 Choose only the elements for which some `func(T) bool` returns true.
 
 </details>
 <details>
-<summary>`slice.` `Push`, `Pop`, `Shift`, `Unshift`</summary>
+<summary>slice.{Push, Pop, Shift, Unshift}</summary>
 
 Append or remove an element from the start or end of the slice.
 
 </details>
 <details>
-<summary>`slice.` `Insert`, `Delete`</summary>
+<summary>slice.{Insert, Delete}</summary>
 
 Add or remove an element at any position in the slice.
 
 </details>
 <details>
-<summary>`slice.` `First`, `Last`</summary>
+<summary>slice.{First, Last}</summary>
 
 Reslice to only take the first or last `n` elements.
 
 </details>
 <details>
-<summary>`slice.` `Sort`, `Min`, `Max`</summary>
+<summary>slice.{Sort, Min, Max}</summary>
 
 Sort the elements of the slice. Find the smallest or biggest values. As long as the slice is a normal type (`[]string`, `[]int`, etc.) or it implements `sort.Interface`, these all work.
 
 </details>
 <details>
-<summary>`slice.` `SortBy`, `MinBy`, `MaxBy`</summary>
+<summary>slice.{SortBy, MinBy, MaxBy}</summary>
 
 Sort, or find the smallest / biggest values by some `func(a, b T) bool` that returns whether element `a < b`.
 
 </details>
 <details>
-<summary>`slice.` `GroupBy`</summary>
+<summary>slice.GroupBy</summary>
 
 Apply a `func(V) K` to every element of the slice and group them into a map (`map[K][]V`) of the results.
 
 </details>
 <details>
-<summary>`slice.` `Reverse`, `Flatten`, `Join`</summary>
+<summary>slice.{Reverse, Flatten, Join}</summary>
 
 Reverse the order of elements in the slice. Flatten a nested slice of slices into a one-dimensional slice. Join a slice of strings into a single string.
 
 </details>
 <details>
-<summary>`slice.` `Copy`, `Value`, `Len`, `IsEmpty`</summary>
+<summary>slice.{Copy, Value, Len, IsEmpty}</summary>
 
 Copy the contents to a new underlying slice. Get the underlying slice value. Get the number of elements in the slice. Check if the slice is empty.
 
 </details>
 
 <details>
-<summary>`map.` `Keys`, `Values`</summary>
+<summary>map.{Keys, Values}</summary>
 
 Get a slice of only the key or values of the map.
 
 </details>
 <details>
-<summary>`map.` `Only`</summary>
+<summary>map.Only</summary>
 
 Get a map containing only the entries matching some list of keys.
 
 </details>
 <details>
-<summary>`map.` `Copy`, `Value`, `Len`, `IsEmpty`</summary>
+<summary>map.HasKeys</summary>
+
+Return true if all of the given keys are present in the map.
+
+</details>
+<details>
+<summary>map.{Copy, Value, Len, IsEmpty}</summary>
 
 Copy the contents to a new underlying map. Get the underlying map value. Get the number of elements in the map. Check if the map is empty.
 
@@ -140,7 +142,7 @@ Copy the contents to a new underlying map. Get the underlying map value. Get the
 
 **(The back-story.)**
 
-So, there I was one day, merrily coding in Go. Feeling so productive, and happy with my life, I examined a piece of code I had just written. I had some logs which I'd read off disk, and I wanted to group them by date, and only take the last few days (with maybe an offset to paginate them). So I looked at my code:
+So, there I was one day, merrily coding in Go. Feeling productive and happy with my life, I examined a piece of code I had just written. I had some logs which I'd read off disk, and I wanted to group them by date, and only take the last few days (with maybe an offset to paginate them). So I looked at my code:
 
 ```go
 func groupLogsByDate(logs []Timelog, amount, offset int) map[string][]Timelog {
@@ -177,7 +179,7 @@ func groupLogsByDate(logs []Timelog, amount, offset int) map[string][]Timelog {
 
 I was pleased, and filled with a warm, fuzzy love for Go. So simple, and clear. _Finish en klaar._
 
-But yet... I didn't feel complete. I felt like I needed more. I longed for the excitement of mapping, filtering, sorting, reducing, grouping... all in one long line that does _all of the things_. I wanted a little box of tricks that I could use to just chain everything together and make **✨magic✨** happen.
+But yet... I felt like I needed more. I longed for the excitement of mapping, reducing, filtering, sorting, grouping... all in one long line that does _all of the things_. I wanted a little box of tricks that I could use to just chain everything together and make **✨magic✨** happen.
 
 I mean, all I really had to do was:
 
@@ -187,9 +189,7 @@ I mean, all I really had to do was:
 4. Take the last/first few
 5. Return a map of only those keys
 
-That should be like 5 lines of code, right? I mean, it used to be that way... in _Ruby_.
-
-_"No!"_ I told myself. _"This is not Ruby! This is a grown-up language. Used by grown-ups. For big, serious, grown-up things!"_ ... _"Go is this way for a **reason**."_
+That's like 5 lines of Ruby, right?
 
 So I went to bed that night, wrestling with my feelings of inner turmoil. I couldn't quiet that little inner voice. I knew it had to be possible. Go has function literals, right. Go has reflection. This must be doable. There must be a way to have my cake _and_ eat it.
 
@@ -218,17 +218,13 @@ func groupLogsByDate(logs []Timelog, amount, offset int) map[string][]Timelog {
 }
 ```
 
-**🤘YEAAA!🤘** Now that's what I'm talking about! I felt the mad rush of power from chaining all those methods and now I was truly _pleased_. I slept well that night, knowing I had done a bad thing, but feeling damn good about it.
+**🤘YEAAA!🤘** Now that's what I'm talking about! I felt the mad rush of power from chaining all those methods and now I was _truly_ pleased. I slept well that night, knowing I had done a bad thing, but feeling damn good about it.
 
 ## So, should I actually use this?
 
-Probably not.
+Probably not. 😆
 
-If you're working on a big project, or if someone else has to maintain your code, certainly not. Having said that though... there's nothing _technically_ wrong with what I've done here. And you must admit, it _is_ pretty awesome. So, if you like writing less code, looking cool in front of your friends, and building things _super fast_ with your ✨magical✨ new code skills, then you know what to do. `go get` 'em.
-
-### Seriously though, why should or shouldn't I use this?
-
-Type safety aside, to my mind, it's a choice between a declarative vs. imperative style.
+Type safety aside though, to my mind, it's a choice between a declarative vs. imperative style.
 
 The declarative style is more _expressive_. We improve readability by simply reducing the code on the page, keeping things short and to the point. This makes it easier to parse what is intended (vs. what is actually being done).
 
@@ -236,11 +232,11 @@ The imperative style is more _accurate_. Readability is gained from code that is
 
 I feel that **tricks** makes it easier to write less, and be more expressive, at the cost of reduced accuracy.
 
-But yes, please only use this in your pet projects. You don't want to take a dependency on a single package that changes how your code is structured in such a fundamental way. This forces everyone else to learn how some crazy package works just to maintain your code. Rather keep things plain and idiomatic.
+But yes, please only use this for writing tests, or in your pet projects. You don't want to take a dependency on a single package that changes how your code is structured in such a fundamental way. This forces everyone else to learn how some crazy package works just to maintain your code. Rather keep things plain and idiomatic.
 
 Interestingly, there are some nice new features coming in Go 1.8 which do things similar to what I've done here, like [`sort.Slice`](https://tip.golang.org/pkg/sort/#Slice). So there is a balance to be struck between these two styles. Hopefully this package can inspire some people, and maybe more of these tricks will slowly be superseded by conveniences from the Go core.
 
-[**Now go and read the API docs please, and make up your mind over there.**](https://godoc.org/github.com/aviddiviner/tricks)
+[Now go and read the API docs please, and make up your mind over there.](https://godoc.org/github.com/aviddiviner/tricks)
 
 ## Wishlist
 
